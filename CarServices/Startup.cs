@@ -30,9 +30,18 @@ namespace CarServices
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(_config.GetConnectionString("CarServicesDBConnection")));
-                //services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            {
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequiredUniqueChars = 0;
+                options.Password.RequiredLength = 3;
+            }).AddEntityFrameworkStores<AppDbContext>();
             services.AddControllersWithViews();
+            services.AddRazorPages();
             services.AddMvc().AddXmlSerializerFormatters();
+
             services.AddScoped<ICarBrandRepository, SQLCarBrandRepository>();
             services.AddScoped<ICarModelRepository, SQLCarModelRepository>();
             services.AddScoped<ICarRepository, SQLCarRepository>();
@@ -65,6 +74,7 @@ namespace CarServices
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
