@@ -12,15 +12,21 @@ namespace CarServices.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ICarRepository _carRepository;
+        private readonly ICustomerRepository _customerRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ICarRepository carRepository, ICustomerRepository customerRepository)
         {
             _logger = logger;
+            _carRepository = carRepository;
+            _customerRepository = customerRepository;
         }
 
         public IActionResult Index()
         {
-            return View();
+            int a = 1;
+            var model = _carRepository.GetCar(a);
+            return View(model);
         }
 
         public IActionResult Privacy()

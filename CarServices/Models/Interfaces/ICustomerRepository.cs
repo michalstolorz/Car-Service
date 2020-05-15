@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CarServices.Models
 { 
-    interface ICustomerRepository
+    public interface ICustomerRepository
     {
         Customer GetCustomer(int Id);
         IEnumerable<Customer> GetAllCustomer();
