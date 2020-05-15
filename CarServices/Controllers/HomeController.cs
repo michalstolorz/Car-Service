@@ -25,6 +25,7 @@ namespace CarServices.Controllers
         public IActionResult Index()
         {
             int a = 1;
+            string b = "dupa";
             var model = _carRepository.GetCar(a);
             return View(model);
         }
