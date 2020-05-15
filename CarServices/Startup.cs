@@ -33,8 +33,17 @@ namespace CarServices
                 //services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
             services.AddControllersWithViews();
             services.AddMvc().AddXmlSerializerFormatters();
+            services.AddScoped<ICarBrandRepository, SQLCarBrandRepository>();
+            services.AddScoped<ICarModelRepository, SQLCarModelRepository>();
             services.AddScoped<ICarRepository, SQLCarRepository>();
             services.AddScoped<ICustomerRepository, SQLCustomerRepository>();
+            services.AddScoped<IEmployeesRepository, SQLEmployeesRepository>();
+            services.AddScoped<IInvoiceRepository, SQLInvoiceRepository>();
+            services.AddScoped<IOrderRepository, SQLOrderRepository>();
+            services.AddScoped<IPartsRepository, SQLPartsRepository>();
+            services.AddScoped<IRepairRepository, SQLRepairRepository>();
+            services.AddScoped<IRepairTypeRepository, SQLRepairTypeRepository>();
+            services.AddScoped<IUsedPartsRepository, SQLUsedPartsRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

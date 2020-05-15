@@ -7,7 +7,6 @@ namespace CarServices.Models
 {
     public class Car
     {
-        string dupa = "dupa";
         public int Id { get; set; }
         public string VIN { get; set; }
         public int ProductionYear { get; set;}

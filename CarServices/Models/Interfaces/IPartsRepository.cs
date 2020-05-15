@@ -8,7 +8,7 @@ namespace CarServices.Models
     public interface IPartsRepository
     {
         Parts GetParts(int Id);
-        IEnumerable<Parts> GetAllCar();
+        IEnumerable<Parts> GetAllParts();
         Parts Add(Parts parts);
         Parts Update(Parts partsChanges);
         Parts Delete(int id);

@@ -26,7 +26,7 @@ namespace CarServices.Models
             Parts parts = context.Parts.Find(id);
             if (parts != null)
             {
-                context.parts.Remove(parts);
+                context.Parts.Remove(parts);
                 context.SaveChanges();
             }
             return parts;
