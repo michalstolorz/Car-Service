@@ -11,5 +11,6 @@ namespace CarServices.Models
         public double Quantity { get; set; }
         public string Status { get; set; }
         public int EmployeesId { get; set; }
+        public DateTime OrderTime { get; set; }
     }
 }

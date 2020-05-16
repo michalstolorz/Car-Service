@@ -7,5 +7,7 @@ namespace CarServices.ViewModels
 {
     public class CarViewModel
     {
+        public string VIN { get; set; }
+        public string Name { get; set; }
     }
 }
