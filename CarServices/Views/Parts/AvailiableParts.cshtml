@@ -1,0 +1,20 @@
+﻿@model PartsAvailiablePartsViewModel
+@{
+    ViewData["Title"] = "AvailiableParts";
+}
+
+<h1>AvailiableParts</h1>
+
+@foreach (var item in Model.PartsList)
+{
+<li>
+    @item.Name
+    @item.PartPrice
+    @item.Quantity
+    @if (item.Quantity<=0)
+    {
+        <span>BRAK!!!</span>
+    }
+    </li>
+    <br />
+}
