@@ -14,6 +14,7 @@ namespace CarServices.Models
         [Required]
         public string Surname { get; set; }
         [Required]
+        [RegularExpression(@"^(\+\s?)?((?<!\+.*)\(\+?\d+([\s\-\.]?\d+)?\)|\d+)([\s\-\.]?(\(\d+([\s\-\.]?\d+)?\)|\d+))*(\s?(x|ext\.?)\s?\d+)?$", ErrorMessage = "Please enter valid phone number")]
         public string TelephoneNumber { get; set; }
         [Required]
         public string Email { get; set; }

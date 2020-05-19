@@ -5,7 +5,7 @@
 
 <h1>AvailiableParts</h1>
 
-@foreach (var item in Model.PartsList)
+@*@foreach (var item in Model.PartsList)
 {
 <li>
     @item.Name
@@ -17,4 +17,28 @@
     }
     </li>
     <br />
-}
+}*@
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Part Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var m in Model.PartsList)
+            {
+                <tr>
+                    <th scope="row">@m.Id</th>
+                    <td>@m.Name</td>
+                    <td>@m.Quantity</td>
+                    <td>@m.PartPrice</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

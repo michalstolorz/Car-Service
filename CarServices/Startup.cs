@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using CarServices.Models.Interfaces;
+using CarServices.Models.LocalDataRepository;
 
 namespace CarServices
 {
@@ -50,10 +52,12 @@ namespace CarServices
             services.AddScoped<IEmployeesRepository, SQLEmployeesRepository>();
             services.AddScoped<IInvoiceRepository, SQLInvoiceRepository>();
             services.AddScoped<IOrderRepository, SQLOrderRepository>();
+            services.AddScoped<IOrderDetailsRepository, SQLOrderDetailsRepository>();
             services.AddScoped<IPartsRepository, SQLPartsRepository>();
             services.AddScoped<IRepairRepository, SQLRepairRepository>();
             services.AddScoped<IRepairTypeRepository, SQLRepairTypeRepository>();
             services.AddScoped<IUsedPartsRepository, SQLUsedPartsRepository>();
+            services.AddSingleton<ILocalDataRepository, MockLocalDataRepository>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }

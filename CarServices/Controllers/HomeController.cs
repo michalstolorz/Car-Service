@@ -32,8 +32,8 @@ namespace CarServices.Controllers
         public IActionResult Index()
         {
             var car = _carRepository.GetCar(1);
-            var customer = _customerRepository.GetCustomer(1);
-            CarViewModel model = new CarViewModel { Name = customer.Name, VIN = car.VIN };
+            //var customer = _customerRepository.GetCustomer(2);
+            CarViewModel model = new CarViewModel { /*Name = customer.Name,*/ VIN = car.VIN };
             return View(model);
         }
 

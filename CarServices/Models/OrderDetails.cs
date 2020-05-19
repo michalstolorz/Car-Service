@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace CarServices.Models
 {
-    public class UsedParts
+    public class OrderDetails
     {
         public int Id { get; set; }
-        public int Quantity { get; set; }
-        [ForeignKey("RepairId")]
-        public Repair Repair { get; set; }
-        public int RepairId { get; set; }
+        [ForeignKey("OrderId")]
+        public Order Order { get; set; }
+        public int OrderId { get; set; }
         [ForeignKey("PartId")]
         public Parts Part { get; set; }
         public int PartId { get; set; }
+        public int Quantity { get; set; }
     }
 }

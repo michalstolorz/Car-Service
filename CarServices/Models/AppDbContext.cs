@@ -27,5 +27,6 @@ namespace CarServices.Models
         public DbSet<Repair> Repair { get; set; }
         public DbSet<RepairType> RepairType { get; set; }
         public DbSet<UsedParts> UsedParts { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
     }
 }

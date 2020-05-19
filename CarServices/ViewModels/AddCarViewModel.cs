@@ -16,10 +16,13 @@ namespace CarServices.ViewModels
         [Required]
         public int ProductionYear { get; set; }
         [Required]
+        [Display(Name = "Car")]
         public int ChoosenModelId { get; set; }
-        //[Required]
+        [Required]
+        [Display(Name ="Customer")]
         public int ChoosenCustomerId { get; set; }
         public List<CarBrand> CarBrands { get; set; }
+        public List<Customer> CustomersList { get; set; }
         public SelectList FilteredModels { get; set; }
     }
 }

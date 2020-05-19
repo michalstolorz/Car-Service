@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using CarServices.Models;
 using CarServices.ViewModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using CarServices.Models.Interfaces;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace CarServices.Controllers
 {
@@ -15,14 +18,16 @@ namespace CarServices.Controllers
         private readonly ICarRepository _carRepository;
         private readonly ICarBrandRepository _carBrandRepository;
         private readonly ICarModelRepository _carModelRepository;
+        private readonly ILocalDataRepository _localDataRepository;
 
-        public OfficeController(ICustomerRepository customerRepository, ICarRepository carRepository, 
-            ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository)
+        public OfficeController(ICustomerRepository customerRepository, ICarRepository carRepository,
+            ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, ILocalDataRepository localDataRepository)
         {
             _customerRepository = customerRepository;
             _carRepository = carRepository;
             _carBrandRepository = carBrandRepository;
             _carModelRepository = carModelRepository;
+            _localDataRepository = localDataRepository;
         }
 
         //dodawanie/przegląd klientow, dodawanie aut, zamawianie czesci, udzielanie rabatu, dodawanie nowej naprawy
@@ -37,13 +42,14 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult AddCustomer()
         {
+
             return View();
         }
 
         [HttpPost]
         public IActionResult AddCustomer(Customer customer)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 customer.Discount = 0;
                 _customerRepository.Add(customer);
@@ -58,6 +64,8 @@ namespace CarServices.Controllers
             AddCarViewModel model = new AddCarViewModel();
             model.CarBrands = new List<CarBrand>();
             model.CarBrands = _carBrandRepository.GetAllCarBrand().ToList();
+            model.CustomersList = new List<Customer>();
+            model.CustomersList = _customerRepository.GetAllCustomer().ToList();
             return View(model);
         }
 
@@ -71,19 +79,52 @@ namespace CarServices.Controllers
         }
 
         [HttpPost]
+        public void FillModelId(int modelId)
+        {
+            _localDataRepository.SetModelId(modelId);
+        }
+
+        [HttpPost]
         public IActionResult AddCar(AddCarViewModel model)
         {
             if (ModelState.IsValid)
             {
+                model.ChoosenModelId = _localDataRepository.GetModelId();
                 Car car = new Car
                 {
+                    VIN = model.VIN.ToUpper(),
                     ProductionYear = model.ProductionYear,
-                    VIN = model.VIN,
+                    ModelId = model.ChoosenModelId,
+                    CustomerId = model.ChoosenCustomerId
                 };
                 _carRepository.Add(car);
                 return RedirectToAction("index", "home");
             }
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult SetDiscount()
+        {
+            SetDiscountViewModel model = new SetDiscountViewModel();
+            model.CustomerList = new List<Customer>();
+            model.CustomerList = _customerRepository.GetAllCustomer().ToList();
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult SetDiscount(SetDiscountViewModel setDiscountViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                Customer customer = new Customer();
+                customer = _customerRepository.GetCustomer(setDiscountViewModel.Id);
+                customer.Discount = setDiscountViewModel.Discount;
+                _customerRepository.Update(customer);
+                return RedirectToAction("listcustomers", "office", _customerRepository.GetAllCustomer().ToList());
+            }
+            setDiscountViewModel.CustomerList = _customerRepository.GetAllCustomer().ToList();
+            return View(setDiscountViewModel);
         }
     }
 }
