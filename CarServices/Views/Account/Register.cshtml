@@ -9,6 +9,16 @@
 <div class="row">
     <div class="col-md-12">
         <form method="post">
+            <div class="form-group">
+                <label asp-for="EmployeeName"></label>
+                <input asp-for="EmployeeName" class="form-control" />
+                <span asp-validation-for="EmployeeName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeSurname"></label>
+                <input asp-for="EmployeeSurname" class="form-control" />
+                <span asp-validation-for="EmployeeSurname" class="text-danger"></span>
+            </div>
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Name"></label>

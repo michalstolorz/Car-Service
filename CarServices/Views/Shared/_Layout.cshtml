@@ -31,21 +31,27 @@
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("OfficeWorker"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListCustomers">Customer List</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListCustomers">Customers List</a>
                             </li>
                         }
-                       *@if (signInManager.IsSignedIn(User) && User.IsInRole("Mechanic"))
-                       {
+                        @if (signInManager.IsSignedIn(User) && User.IsInRole("Mechanic"))
+                        {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddCar">Add Car</a>
                             </li>
-                       }
+                        }
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Administration" asp-action="ListRoles">List Roles</a>
                             </li>
                         }
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListEmployees">Employees List</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddRepair">Add Repair</a>
+                        </li>
                     </ul>
                     <ul class="navbar-nav ml-auto">
                         @if (signInManager.IsSignedIn(User))

@@ -11,7 +11,6 @@ namespace CarServices.Models
     {
         public int Id { get; set; }
         [Required]
-        [StringLength(17, ErrorMessage = "Wrong VIN number")]
         public string VIN { get; set; }
         [Required]
         public int ProductionYear { get; set; }

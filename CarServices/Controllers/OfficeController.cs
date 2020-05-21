@@ -9,25 +9,38 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using CarServices.Models.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace CarServices.Controllers
 {
     public class OfficeController : Controller
     {
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly ICustomerRepository _customerRepository;
         private readonly ICarRepository _carRepository;
         private readonly ICarBrandRepository _carBrandRepository;
         private readonly ICarModelRepository _carModelRepository;
         private readonly ILocalDataRepository _localDataRepository;
+        private readonly IEmployeesRepository _employeesRepository;
+        private readonly IRepairTypeRepository _repairTypeRepository;
+        private readonly IRepairRepository _repairRepository;
 
         public OfficeController(ICustomerRepository customerRepository, ICarRepository carRepository,
-            ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, ILocalDataRepository localDataRepository)
+            ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, ILocalDataRepository localDataRepository,
+            IEmployeesRepository employeesRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager,
+            IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository)
         {
             _customerRepository = customerRepository;
             _carRepository = carRepository;
             _carBrandRepository = carBrandRepository;
             _carModelRepository = carModelRepository;
             _localDataRepository = localDataRepository;
+            _employeesRepository = employeesRepository;
+            _repairTypeRepository = repairTypeRepository;
+            _repairRepository = repairRepository;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         //dodawanie/przegląd klientow, dodawanie aut, zamawianie czesci, udzielanie rabatu, dodawanie nowej naprawy
@@ -35,14 +48,32 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult ListCustomers()
         {
-            IEnumerable<Customer> listOfCustomers = _customerRepository.GetAllCustomer().ToList();
-            return View(listOfCustomers);
+            IEnumerable<Customer> listCustomers = _customerRepository.GetAllCustomer().ToList();
+            return View(listCustomers);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ListEmployees()
+        {
+            IEnumerable<Employees> listEmployees = _employeesRepository.GetAllEmployees().ToList();
+            List<ListEmployeesViewModel> model = new List<ListEmployeesViewModel>();
+            foreach(var e in listEmployees)
+            {
+                ListEmployeesViewModel listEmployeesViewModel = new ListEmployeesViewModel();
+                listEmployeesViewModel.Id = e.Id;
+                listEmployeesViewModel.Name = e.Name;
+                listEmployeesViewModel.Surname = e.Surname;
+                var user = await _userManager.FindByIdAsync(e.UserId);
+                var roles = await _userManager.GetRolesAsync(user);
+                listEmployeesViewModel.Rolename = roles.FirstOrDefault();
+                model.Add(listEmployeesViewModel);
+            }
+            return View(model);
         }
 
         [HttpGet]
         public IActionResult AddCustomer()
         {
-
             return View();
         }
 
@@ -100,6 +131,59 @@ namespace CarServices.Controllers
                 _carRepository.Add(car);
                 return RedirectToAction("index", "home");
             }
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult AddRepair()
+        {
+            AddRepairViewModel addRepairViewModel = new AddRepairViewModel();
+            addRepairViewModel.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
+            addRepairViewModel.CarList = new List<SelectListItem>();
+            var carList = _carRepository.GetAllCar().ToList();
+            foreach(var c in carList)
+            {
+                CarModel carModel = _carModelRepository.GetCarModel(c.ModelId);
+                c.CarModel = carModel;
+                CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
+                c.CarModel.CarBrand = carBrand;
+                addRepairViewModel.CarList.Add(new SelectListItem { Text = c.CarModel.CarBrand.Name.ToString() + " " + c.CarModel.Name.ToString() + " " + c.ProductionYear.ToString() + " " + c.VIN.ToString(), Value = c.Id.ToString() } );
+            }
+            return View(addRepairViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult AddRepair(AddRepairViewModel addRepairViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                Repair repair = new Repair()
+                {
+                    CarId = addRepairViewModel.ChoosenCarId,
+                    TypeId = addRepairViewModel.ChoosenTypeId,
+                    Status = "Waiting for assignment"
+                };
+                _repairRepository.Add(repair);
+                return RedirectToAction("index", "home");
+            }
+            addRepairViewModel.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
+            addRepairViewModel.CarList = new List<SelectListItem>();
+            var carList = _carRepository.GetAllCar().ToList();
+            foreach (var c in carList)
+            {
+                CarModel carModel = _carModelRepository.GetCarModel(c.ModelId);
+                c.CarModel = carModel;
+                CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
+                c.CarModel.CarBrand = carBrand;
+                addRepairViewModel.CarList.Add(new SelectListItem { Text = c.CarModel.CarBrand.Name.ToString() + " " + c.CarModel.Name.ToString() + " " + c.ProductionYear.ToString() + " " + c.VIN.ToString(), Value = c.Id.ToString() });
+            }
+            return View(addRepairViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult ListRepairAssign()
+        {
+
             return View();
         }
 

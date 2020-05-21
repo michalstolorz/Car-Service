@@ -9,6 +9,7 @@ namespace CarServices.ViewModels
     public class RegisterViewModel
     {
         [Required]
+        [Display(Name ="User system name")]
         public string Name { get; set; }
 
         [Required]
@@ -20,5 +21,13 @@ namespace CarServices.ViewModels
         [Compare("Password",
             ErrorMessage = "Password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        [Required]
+        [Display(Name = "Employee name")]
+        public string EmployeeName { get; set; }
+
+        [Required]
+        [Display(Name = "Employee surname")]
+        public string EmployeeSurname { get; set; }
     }
 }

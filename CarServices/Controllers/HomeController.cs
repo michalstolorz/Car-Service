@@ -16,25 +16,31 @@ namespace CarServices.Controllers
     public class HomeController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IPartsRepository _partsRepository;
         private readonly ILogger<HomeController> _logger;
         private readonly ICarRepository _carRepository;
         private readonly ICustomerRepository _customerRepository;
 
         public HomeController(ILogger<HomeController> logger, ICarRepository carRepository, ICustomerRepository customerRepository, 
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor, IPartsRepository partsRepository)
         {
             _logger = logger;
             _carRepository = carRepository;
             _customerRepository = customerRepository;
             _httpContextAccessor = httpContextAccessor;
+            _partsRepository = partsRepository;
         }
 
         public IActionResult Index()
         {
-            var car = _carRepository.GetCar(1);
-            //var customer = _customerRepository.GetCustomer(2);
-            CarViewModel model = new CarViewModel { /*Name = customer.Name,*/ VIN = car.VIN };
-            return View(model);
+            List<Parts> model = new List<Parts>();
+            model = _partsRepository.GetAllParts().Where(p => p.Quantity == 0).ToList();
+            string parts = "";
+            foreach(var m in model)
+            {
+                parts += @"\n" + m.Name;
+            }
+            return View("index", parts);
         }
 
         public IActionResult Privacy()

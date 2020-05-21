@@ -1,4 +1,5 @@
-﻿@model CarViewModel
+﻿@inject SignInManager<IdentityUser> signInManager;
+@model String
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -8,7 +9,11 @@
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
 
-<div class="float-right">
-    @*@Model.Name*@
-</div>
-@Model.VIN
+
+@if (signInManager.IsSignedIn(User) && User.IsInRole("OfficeWorker"))
+{
+        <body onpageshow="return confirm('Missing parts from warehouse: @Model')">
+
+        </body>
+}
+
