@@ -12,6 +12,8 @@ namespace CarServices.ViewModels
     {
         public int Id { get; set; }
         [Required]
+        [StringLength(maximumLength:17,MinimumLength = 17, ErrorMessage = "Wrong VIN number")]
+        [RegularExpression(@"^[^IOQioq]+$", ErrorMessage = "Wrong VIN number")]
         public string VIN { get; set; }
         [Required]
         public int ProductionYear { get; set; }

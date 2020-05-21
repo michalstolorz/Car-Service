@@ -100,7 +100,11 @@ namespace CarServices.Controllers
                 _carRepository.Add(car);
                 return RedirectToAction("index", "home");
             }
-            return View();
+            model.CarBrands = new List<CarBrand>();
+            model.CarBrands = _carBrandRepository.GetAllCarBrand().ToList();
+            model.CustomersList = new List<Customer>();
+            model.CustomersList = _customerRepository.GetAllCustomer().ToList();
+            return View(model);
         }
 
         [HttpGet]

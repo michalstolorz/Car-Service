@@ -34,12 +34,11 @@
                                 <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListCustomers">Customer List</a>
                             </li>
                         }
-                       *@if (signInManager.IsSignedIn(User) && User.IsInRole("Mechanic"))
-                       {
+                       
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddCar">Add Car</a>
                             </li>
-                       }
+                       
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {
                             <li class="nav-item">

@@ -17,6 +17,7 @@ namespace CarServices.Models
         [RegularExpression(@"^(\+\s?)?((?<!\+.*)\(\+?\d+([\s\-\.]?\d+)?\)|\d+)([\s\-\.]?(\(\d+([\s\-\.]?\d+)?\)|\d+))*(\s?(x|ext\.?)\s?\d+)?$", ErrorMessage = "Please enter valid phone number")]
         public string TelephoneNumber { get; set; }
         [Required]
+        [EmailAddress]
         public string Email { get; set; }
         public double Discount { get; set; }
     }
