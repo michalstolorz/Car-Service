@@ -1,0 +1,29 @@
+﻿@model IEnumerable<ListEmployeesViewModel>
+@{
+    ViewData["Title"] = "ListEmployees";
+}
+
+<h1>ListEmployees</h1>
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Surname</th>
+            <th scope="col">User role</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var m in Model)
+            {
+                <tr>
+                    <th scope="row">@m.Id</th>
+                    <td>@m.Name</td>
+                    <td>@m.Surname</td>
+                    <td>@m.Rolename</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

@@ -13,6 +13,10 @@
     <Compile Remove="Migrations\20200519113315_ForeignKeyFixes.Designer.cs" />
     <Compile Remove="Migrations\20200519113416_ForeignKeyFixes.cs" />
     <Compile Remove="Migrations\20200519113416_ForeignKeyFixes.Designer.cs" />
+    <Compile Remove="Migrations\20200520111752_FixRepairModel.cs" />
+    <Compile Remove="Migrations\20200520111752_FixRepairModel.Designer.cs" />
+    <Compile Remove="Migrations\20200520111926_FixRepairModel.cs" />
+    <Compile Remove="Migrations\20200520111926_FixRepairModel.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
