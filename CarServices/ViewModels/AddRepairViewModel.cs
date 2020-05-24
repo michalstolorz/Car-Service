@@ -18,10 +18,4 @@ namespace CarServices.ViewModels
         [Display(Name = "Repair Type")]
         public int ChoosenTypeId { get; set; }
     }
-
-    public class CarName
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
 }
