@@ -1,0 +1,67 @@
+﻿@model IEnumerable<Repair>
+@{
+    ViewData["Title"] = "ListRepairAssign";
+}
+
+<h1>ListRepairAssign</h1>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Car</th>
+            <th scope="col">VIN</th>
+            <th scope="col">Production Year</th>
+            <th scope="col">Status</th>
+            <th scope="col">Type</th>
+            <th scope="col">Assign Employee</th>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            @if (m.EmployeesId != 0)
+            {
+
+                <tr style="background-color: green;">
+                    <th scope="row">@m.Id</th>
+                    <td>@m.Car.CarModel.CarBrand.Name @m.Car.CarModel.Name</td>
+                    <td>@m.Car.VIN</td>
+                    <td>@m.Car.ProductionYear</td>
+                    <td>@m.Status</td>
+                    <td>@m.RepairType.Name</td>
+                    @if (m.EmployeesId == 0)
+                    {
+                        <td>Not Assign</td>
+                    }
+                    else
+                    {
+                        <td>@m.Employees.Name @m.Employees.Surname</td>
+                    }
+                    <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AssignRepair" asp-route-id="@m.Id">Assign</a></td>
+                </tr>
+            }
+            else
+            {
+
+                <tr>
+                    <th scope="row">@m.Id</th>
+                    <td>@m.Car.CarModel.CarBrand.Name @m.Car.CarModel.Name</td>
+                    <td>@m.Car.VIN</td>
+                    <td>@m.Car.ProductionYear</td>
+                    <td>@m.Status</td>
+                    <td>@m.RepairType.Name</td>
+                    @if (m.EmployeesId == 0)
+                    {
+                        <td>Not Assign</td>
+                    }
+                    else
+                    {
+                        <td>@m.Employees.Name @m.Employees.Surname</td>
+                    }
+                    <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AssignRepair" asp-route-id="@m.Id">Assign</a></td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>

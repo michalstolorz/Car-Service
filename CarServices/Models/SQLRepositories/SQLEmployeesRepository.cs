@@ -42,6 +42,12 @@ namespace CarServices.Models
             return context.Employees.Find(Id);
         }
 
+        public Employees GetEmployeesByUserId(string userId)
+        {
+            var list = GetAllEmployees().Where(e => e.UserId == userId).ToList();
+            return list.FirstOrDefault();
+        }
+
         public Employees Update(Employees employeesChanges)
         {
             var employees = context.Employees.Attach(employeesChanges);

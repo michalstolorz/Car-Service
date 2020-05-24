@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Repair>
+@{
+    ViewData["Title"] = "ListRepairAssignedToMechanic";
+}
+
+<h1>ListRepairAssignedToMechanic</h1>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Car</th>
+            <th scope="col">VIN</th>
+            <th scope="col">Production Year</th>
+            <th scope="col">Status</th>
+            <th scope="col">Type</th>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <th scope="row">@m.Id</th>
+                <td>@m.Car.CarModel.CarBrand.Name @m.Car.CarModel.Name</td>
+                <td>@m.Car.VIN</td>
+                <td>@m.Car.ProductionYear</td>
+                <td>@m.Status</td>
+                <td>@m.RepairType.Name</td>
+                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddPartToRepair" asp-route-id="@m.Id">Add Parts</a></td>
+                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="SetRepairCost" asp-route-id="@m.Id">Valuation</a></td>
+            </tr>
+        }
+
+    </tbody>
+</table>

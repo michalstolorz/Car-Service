@@ -1,0 +1,88 @@
+﻿@model AddPartToRepairViewModel
+@{
+    ViewData["Title"] = "AddPartToRepair";
+}
+
+<h1>AddPartToRepair</h1>
+
+<form asp-action="AddPartToRepair" method="post" class="mt-3">
+    <div asp-validation-summary="All" class="text-danger">
+    </div>
+    <div class="form-group row">
+        <label asp-for="UsedParts" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <table class="table" style="margin-top: 20px">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Quantity used in this repair</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var m in Model.UsedParts)
+                        {
+                            <tr>
+                                <th scope="row">@m.Id</th>
+                                <td scope="row">@m.Part.Name</td>
+                                <td scope="row">@m.Quantity</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="ChoosenPartId" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            @Html.DropDownListFor(m => m.ChoosenPartId, new SelectList(Model.AvailableParts, "Id", "Name"), "Select Part", new { @style = "width:200px;" })
+            <span asp-validation-for="ChoosenPartId" class="text-danger"></span>
+
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="UsedPartQuantity" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="UsedPartQuantity" class="form-control" placeholder="Quantity">
+            <span asp-validation-for="UsedPartQuantity" class="text-danger"></span>
+        </div>
+    </div>
+    @Html.HiddenFor(model => model.RepairId)
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary" style="width:auto">
+                Add Part
+            </button>
+            <a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ListRepairAssignedToMechanic">Back</a>
+        </div>
+    </div>
+
+</form>
+
+@*<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<script language="javascript" type="text/javascript">
+    function GetPartQuantity(_partId) {
+        var procemessage = "<option value='0'> Please wait...</option>";
+        $("#ddlpart").html(procemessage).show();
+        var url = "/Mechanic/GetQuantityByPartId/";
+
+        $.ajax({
+            url: url,
+            data: { partid: _partId },
+            cache: false,
+            type: "POST",
+            success: function (data) {
+                var markup = "<option value='0'>Select Model</option>";
+                for (var x = 0; x < data.length; x++) {
+                    markup += "<option value=" + data[x].value + ">" + data[x].text + "</option>";
+                }
+                $("#ddlpart").html(markup).show();
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });
+    }
+</script>*@

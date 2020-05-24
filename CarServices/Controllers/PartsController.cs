@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CarServices.Models;
 using CarServices.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CarServices.Controllers
 {
+    [AllowAnonymous]
     public class PartsController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
