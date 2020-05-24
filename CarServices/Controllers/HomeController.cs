@@ -10,9 +10,11 @@ using CarServices.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CarServices.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -20,15 +22,19 @@ namespace CarServices.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ICarRepository _carRepository;
         private readonly ICustomerRepository _customerRepository;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public HomeController(ILogger<HomeController> logger, ICarRepository carRepository, ICustomerRepository customerRepository, 
-            IHttpContextAccessor httpContextAccessor, IPartsRepository partsRepository)
+            IHttpContextAccessor httpContextAccessor, IPartsRepository partsRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _logger = logger;
             _carRepository = carRepository;
             _customerRepository = customerRepository;
             _httpContextAccessor = httpContextAccessor;
             _partsRepository = partsRepository;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public IActionResult Index()
@@ -43,9 +49,13 @@ namespace CarServices.Controllers
             return View("index", parts);
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Privacy()
         {
             var username = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value; //id obecnie zalogowanego użytkownika z tabeli AspNetUsers
+            var user = await _userManager.FindByIdAsync(username);
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.FirstOrDefault() != "Admin")
+                return Unauthorized();
             return View();
         }
 

@@ -14,6 +14,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using CarServices.Models.Interfaces;
 using CarServices.Models.LocalDataRepository;
+using System.Net;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace CarServices
 {
@@ -40,10 +43,22 @@ namespace CarServices
                 options.Password.RequireDigit = false;
                 options.Password.RequiredUniqueChars = 0;
                 options.Password.RequiredLength = 3;
-            }).AddEntityFrameworkStores<AppDbContext>();
+            }).AddEntityFrameworkStores<AppDbContext>().AddRoles<IdentityRole>();
             services.AddControllersWithViews();
             services.AddRazorPages();
-            services.AddMvc().AddXmlSerializerFormatters();
+            services.AddMvc(
+            //    config =>
+            //{
+            //    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+            //    config.Filters.Add(new AuthorizeFilter(policy));
+            //}
+            ).AddXmlSerializerFormatters();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy =>
+                                  policy.RequireRole("Admin"));
+            });
 
             services.AddScoped<ICarBrandRepository, SQLCarBrandRepository>();
             services.AddScoped<ICarModelRepository, SQLCarModelRepository>();

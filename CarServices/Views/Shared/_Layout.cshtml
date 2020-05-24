@@ -28,16 +28,31 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListEmployees">Employees List</a>
+                        </li>
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("OfficeWorker"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListCustomers">Customers List</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddCar">Add Car</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddRepair">Add Repair</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="SetDiscount">Set Discount</a>
+                            </li>
                         }
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("Mechanic"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddCar">Add Car</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Mechanic" asp-action="ListRepairAssign">Assign Repair</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Mechanic" asp-action="ListRepairAssignedToMechanic">Your Repairs</a>
                             </li>
                         }
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
@@ -46,12 +61,6 @@
                                 <a class="nav-link text-white" asp-area="" asp-controller="Administration" asp-action="ListRoles">List Roles</a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListEmployees">Employees List</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddRepair">Add Repair</a>
-                        </li>
                     </ul>
                     <ul class="navbar-nav ml-auto">
                         @if (signInManager.IsSignedIn(User))

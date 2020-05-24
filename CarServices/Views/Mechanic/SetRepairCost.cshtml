@@ -1,0 +1,58 @@
+﻿@model SetRepairCostViewModel
+@{
+    ViewData["Title"] = "SetRepairCost";
+}
+
+<h1>SetRepairCost</h1>
+
+<form asp-action="SetRepairCost" method="post" class="mt-3">
+    <div asp-validation-summary="All" class="text-danger">
+    </div>
+    <div class="form-group row">
+        <label asp-for="UsedParts" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <table class="table" style="margin-top: 20px">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Quantity used in this repair</th>
+                        <th scope="col">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var m in Model.UsedParts)
+                        {
+                            <tr>
+                                <th scope="row">@m.Id</th>
+                                <td scope="row">@m.Part.Name</td>
+                                <td scope="row">@m.Quantity</td>
+                                <td scope="row">@m.Part.PartPrice</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="CostForWork" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10" style="display: block">
+            <label style="display: inline-block; text-align: left; width: 150px">@Model.CostForParts</label>
+            <input asp-for="CostForWork" class="form-control" placeholder="Cost for work">
+            <span asp-validation-for="CostForWork" class="text-danger"></span>
+        </div>
+    </div>
+    @Html.HiddenFor(model => model.RepairId)
+    @Html.HiddenFor(model => model.CostForParts)
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary" style="width:auto">
+                Valuate
+            </button>
+            <a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ListRepairAssignedToMechanic">Back</a>
+        </div>
+    </div>
+
+</form>
