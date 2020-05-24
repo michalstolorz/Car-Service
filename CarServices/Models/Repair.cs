@@ -25,6 +25,6 @@ namespace CarServices.Models
         public Invoice Invoice { get; set; }
         public int? InvoiceId { get; set; }
         public string Status { get; set; }
-        public int? Cost { get; set; }
+        public double? Cost { get; set; }
     }
 }

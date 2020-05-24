@@ -13,8 +13,10 @@ namespace CarServices.ViewModels
         [Display(Name = "Used Parts")]
         public List<UsedParts> UsedParts { get; set; }
         [Required]
+        [Display(Name = "Part")]
         public int ChoosenPartId { get; set; }
         [Required]
+        [Display(Name = "Quantity")]
         public int UsedPartQuantity { get; set; }
         public List<Parts> AvailableParts{ get; set; }
         public int RepairId { get; set; }

@@ -148,9 +148,10 @@ namespace CarServices.Controllers
         public IActionResult AddPartToRepair(AddPartToRepairViewModel model)
         {
             Parts partsCheck = _partsRepository.GetParts(model.ChoosenPartId);
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                if (partsCheck.Quantity > model.UsedPartQuantity) {
+                if (partsCheck.Quantity > model.UsedPartQuantity)
+                {
                     UsedParts usedParts = new UsedParts()
                     {
                         RepairId = model.RepairId,
@@ -173,7 +174,6 @@ namespace CarServices.Controllers
             }
             model.AvailableParts = _partsRepository.GetAllParts().Where(p => p.Quantity > 0).ToList();
             model.UsedParts = usedPartslist;
-            model.RepairId = model.RepairId;
             return View(model);
         }
 
@@ -200,8 +200,20 @@ namespace CarServices.Controllers
         [HttpPost]
         public IActionResult SetRepairCost(SetRepairCostViewModel model)
         {
-            string a = "a";
-            return View();
+            if (ModelState.IsValid)
+            {
+                Repair repair = _repairRepository.GetRepair(model.RepairId);
+                repair.Cost = model.CostForParts + model.CostForWork;
+                _repairRepository.Update(repair);
+            }
+            List<UsedParts> usedPartslist = _usedPartsRepository.GetAllUsedParts().Where(up => up.RepairId == model.RepairId).ToList();
+            foreach (var u in usedPartslist)
+            {
+                Parts part = _partsRepository.GetParts(u.PartId);
+                u.Part = part;
+            }
+            model.UsedParts = usedPartslist;
+            return View(model);
         }
     }
 }
