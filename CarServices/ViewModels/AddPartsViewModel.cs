@@ -14,8 +14,7 @@ namespace CarServices.ViewModels
         [Display(Name = "Parts")]
         public int choosenPartsId { get; set; }
         [Required]
+        [Display(Name = "Quantity")]
         public int addedQuantity { get; set; }
-        
-
     }
 }

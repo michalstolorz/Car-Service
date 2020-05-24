@@ -150,7 +150,7 @@ namespace CarServices.Controllers
             Parts partsCheck = _partsRepository.GetParts(model.ChoosenPartId);
             if (ModelState.IsValid)
             {
-                if (partsCheck.Quantity > model.UsedPartQuantity)
+                if (partsCheck.Quantity >= model.UsedPartQuantity)
                 {
                     UsedParts usedParts = new UsedParts()
                     {

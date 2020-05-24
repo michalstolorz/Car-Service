@@ -71,14 +71,10 @@ namespace CarServices.Controllers
                 Parts updatedParts = _partsRepository.GetParts(addPartsViewModel.choosenPartsId);
                 updatedParts.Quantity += addPartsViewModel.addedQuantity;
                 _partsRepository.Update(updatedParts);
-                System.Web.UI.ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "AlertBox", "alert('Your Message');", true);
                 return RedirectToAction("index", "home");
             }
-            else
-            {
-                addPartsViewModel.PartsList = _partsRepository.GetAllParts().ToList();
-                return View(addPartsViewModel);
-            }
+            addPartsViewModel.PartsList = _partsRepository.GetAllParts().ToList();
+            return View(addPartsViewModel);
         }
     }
 }
