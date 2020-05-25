@@ -68,10 +68,10 @@ namespace CarServices.Controllers
         {
             if (ModelState.IsValid)
             {
-                Parts updatedParts = _partsRepository.GetParts(supplyPartsViewModel.choosenPartsId);
-                updatedParts.Quantity += supplyPartsViewModel.addedQuantity;
+                Parts updatedParts = _partsRepository.GetParts(supplyPartsViewModel.ChoosenPartsId);
+                updatedParts.Quantity += supplyPartsViewModel.AddedQuantity;
                 _partsRepository.Update(updatedParts);
-                return RedirectToAction("index", "home");
+                return RedirectToAction("AvailiableParts", "Parts");
             }
             supplyPartsViewModel.PartsList = _partsRepository.GetAllParts().ToList();
             return View(supplyPartsViewModel);
@@ -81,7 +81,6 @@ namespace CarServices.Controllers
         public IActionResult AddParts()
         {
             AddPartsViewModel addPartsViewModel = new AddPartsViewModel();
-
             return View(addPartsViewModel);
         }
 
@@ -97,10 +96,9 @@ namespace CarServices.Controllers
                     PartPrice = addPartsViewModel.PartPrice
                 };
                 _partsRepository.Add(parts);
-                return RedirectToAction("index", "home");
+                return RedirectToAction("AvailiableParts", "Parts");
             }
             return View(addPartsViewModel);
-
         }
     }
 }

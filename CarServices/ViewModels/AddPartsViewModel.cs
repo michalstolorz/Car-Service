@@ -16,7 +16,7 @@ namespace CarServices.ViewModels
         [Display(Name = "Quantity")]
         public int Quantity { get; set; }
         [Required]
-        [Display(Name = "PartPrice")]
+        [Display(Name = "Part Price")]
         public float PartPrice { get; set; }
     }
 }

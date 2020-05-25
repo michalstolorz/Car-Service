@@ -11,10 +11,11 @@ namespace CarServices.ViewModels
     public class SupplyPartsViewModel
     {
         public List<Parts> PartsList { get; set; }
+        [Required]
         [Display(Name = "Parts")]
-        public int choosenPartsId { get; set; }
+        public int ChoosenPartsId { get; set; }
         [Required]
         [Display(Name = "Quantity")]
-        public int addedQuantity { get; set; }
+        public int AddedQuantity { get; set; }
     }
 }
