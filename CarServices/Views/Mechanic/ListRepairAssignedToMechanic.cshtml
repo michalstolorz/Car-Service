@@ -27,6 +27,7 @@
                 <td>@m.RepairType.Name</td>
                 <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddPartToRepair" asp-route-id="@m.Id">Add Parts</a></td>
                 <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="SetRepairCost" asp-route-id="@m.Id">Valuation</a></td>
+                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ChangeStatus" asp-route-id="@m.Id">Change status</a></td>
             </tr>
         }
 

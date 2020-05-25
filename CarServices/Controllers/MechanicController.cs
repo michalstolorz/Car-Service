@@ -150,7 +150,7 @@ namespace CarServices.Controllers
             Parts partsCheck = _partsRepository.GetParts(model.ChoosenPartId);
             if (ModelState.IsValid)
             {
-                if (partsCheck.Quantity >= model.UsedPartQuantity)
+                if (partsCheck.Quantity >= model.UsedPartQuantity && model.UsedPartQuantity > 0)
                 {
                     UsedParts usedParts = new UsedParts()
                     {
@@ -164,7 +164,7 @@ namespace CarServices.Controllers
                     _partsRepository.Update(parts);
                     return RedirectToAction("AddPartToRepair", "Mechanic", model.RepairId);
                 }
-                ModelState.AddModelError(string.Empty, "Not enough parts in the warehouse");
+                ModelState.AddModelError(string.Empty, "Wrong quantity of selected part. Not enough parts in the warehouse or value is negative");
             }
             List<UsedParts> usedPartslist = _usedPartsRepository.GetAllUsedParts().Where(up => up.RepairId == model.RepairId).ToList();
             foreach (var m in usedPartslist)
@@ -205,6 +205,7 @@ namespace CarServices.Controllers
                 Repair repair = _repairRepository.GetRepair(model.RepairId);
                 repair.Cost = model.CostForParts + model.CostForWork;
                 _repairRepository.Update(repair);
+                return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
             }
             List<UsedParts> usedPartslist = _usedPartsRepository.GetAllUsedParts().Where(up => up.RepairId == model.RepairId).ToList();
             foreach (var u in usedPartslist)
@@ -213,6 +214,26 @@ namespace CarServices.Controllers
                 u.Part = part;
             }
             model.UsedParts = usedPartslist;
+            return View(model);
+        }
+        
+        [HttpGet]
+        public IActionResult ChangeStatus(int id)
+        {
+            ChangeStatusViewModel model = new ChangeStatusViewModel() {  Id = id };
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult ChangeStatus(ChangeStatusViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                Repair repair = _repairRepository.GetRepair(model.Id);
+                repair.Status = model.Status;
+                _repairRepository.Update(repair);
+                return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
+            }
             return View(model);
         }
     }
