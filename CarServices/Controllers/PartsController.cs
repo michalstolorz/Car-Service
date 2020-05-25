@@ -55,10 +55,32 @@ namespace CarServices.Controllers
             return View();
         }
         [HttpGet]
+        public IActionResult SupplyParts()
+        {
+            SupplyPartsViewModel supplyPartsViewModel = new SupplyPartsViewModel();
+            supplyPartsViewModel.PartsList = _partsRepository.GetAllParts().ToList();
+
+            return View(supplyPartsViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult SupplyParts(SupplyPartsViewModel supplyPartsViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                Parts updatedParts = _partsRepository.GetParts(supplyPartsViewModel.choosenPartsId);
+                updatedParts.Quantity += supplyPartsViewModel.addedQuantity;
+                _partsRepository.Update(updatedParts);
+                return RedirectToAction("index", "home");
+            }
+            supplyPartsViewModel.PartsList = _partsRepository.GetAllParts().ToList();
+            return View(supplyPartsViewModel);
+        }
+
+        [HttpGet]
         public IActionResult AddParts()
         {
             AddPartsViewModel addPartsViewModel = new AddPartsViewModel();
-            addPartsViewModel.PartsList = _partsRepository.GetAllParts().ToList();
 
             return View(addPartsViewModel);
         }
@@ -68,13 +90,17 @@ namespace CarServices.Controllers
         {
             if (ModelState.IsValid)
             {
-                Parts updatedParts = _partsRepository.GetParts(addPartsViewModel.choosenPartsId);
-                updatedParts.Quantity += addPartsViewModel.addedQuantity;
-                _partsRepository.Update(updatedParts);
+                Parts parts = new Parts
+                {
+                    Name = addPartsViewModel.Name,
+                    Quantity = addPartsViewModel.Quantity,
+                    PartPrice = addPartsViewModel.PartPrice
+                };
+                _partsRepository.Add(parts);
                 return RedirectToAction("index", "home");
             }
-            addPartsViewModel.PartsList = _partsRepository.GetAllParts().ToList();
             return View(addPartsViewModel);
+
         }
     }
 }

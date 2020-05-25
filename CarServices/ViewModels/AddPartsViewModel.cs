@@ -1,6 +1,4 @@
-﻿using CarServices.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,11 +8,15 @@ namespace CarServices.ViewModels
 {
     public class AddPartsViewModel
     {
-        public List<Parts> PartsList { get; set; }
-        [Display(Name = "Parts")]
-        public int choosenPartsId { get; set; }
+        [Required]
+        [Display(Name = "Name")]
+        [StringLength(maximumLength: 1000, MinimumLength = 2, ErrorMessage = "Name is too short")]
+        public string Name { get; set; }
         [Required]
         [Display(Name = "Quantity")]
-        public int addedQuantity { get; set; }
+        public int Quantity { get; set; }
+        [Required]
+        [Display(Name = "PartPrice")]
+        public float PartPrice { get; set; }
     }
 }

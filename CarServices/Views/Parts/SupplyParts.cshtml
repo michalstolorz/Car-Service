@@ -1,0 +1,32 @@
+﻿@model SupplyPartsViewModel
+@{
+    ViewData["Title"] = "SupplyParts";
+}
+
+<h1>AddParts</h1>
+
+<form asp-action="SupplyParts" method="post" class="mt-3">
+    <div asp-validation-summary="All" class="text-danger">
+    </div>
+    <div class="form-group row">
+        <label asp-for="choosenPartsId" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            @Html.DropDownListFor(m => m.choosenPartsId, new SelectList(Model.PartsList, "Id", "Name"), "Select parts type")
+            <span asp-validation-for="choosenPartsId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label asp-for="addedQuantity" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input min="1" asp-for="addedQuantity" class="form-control" />
+            <span asp-validation-for="addedQuantity" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary" style="width:auto">Supply parts</button>
+        </div>
+    </div>
+</form>
