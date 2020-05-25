@@ -72,6 +72,7 @@ namespace CarServices
             services.AddScoped<IRepairRepository, SQLRepairRepository>();
             services.AddScoped<IRepairTypeRepository, SQLRepairTypeRepository>();
             services.AddScoped<IUsedPartsRepository, SQLUsedPartsRepository>();
+            services.AddScoped<IUsedRepairTypeRepository, SQLUsedRepairTypeRepository>();
             services.AddSingleton<ILocalDataRepository, MockLocalDataRepository>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

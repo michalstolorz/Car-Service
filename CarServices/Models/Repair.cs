@@ -13,10 +13,10 @@ namespace CarServices.Models
         [ForeignKey("EmployeesId")]
         public Employees Employees { get; set; }
         public int? EmployeesId { get; set; }
-        [ForeignKey("TypeId")]
-        public RepairType RepairType { get; set; }
-        [Required]
-        public int? TypeId { get; set; }
+        //[ForeignKey("TypeId")]
+        //public RepairType RepairType { get; set; }
+        //[Required]
+        //public int? TypeId { get; set; }
         [ForeignKey("CarId")]
         public Car Car { get; set; }
         [Required]

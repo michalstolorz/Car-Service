@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Repair>
+﻿@model ListRepairAssignedToMechanicViewModel
 @{
     ViewData["Title"] = "ListRepairAssignedToMechanic";
 }
@@ -16,19 +16,28 @@
             <th scope="col">Type</th>
     </thead>
     <tbody>
-        @foreach (var m in Model)
+        @foreach (var mr in Model.repairs)
         {
-            <tr>
-                <th scope="row">@m.Id</th>
-                <td>@m.Car.CarModel.CarBrand.Name @m.Car.CarModel.Name</td>
-                <td>@m.Car.VIN</td>
-                <td>@m.Car.ProductionYear</td>
-                <td>@m.Status</td>
-                <td>@m.RepairType.Name</td>
-                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddPartToRepair" asp-route-id="@m.Id">Add Parts</a></td>
-                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="SetRepairCost" asp-route-id="@m.Id">Valuation</a></td>
-                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ChangeStatus" asp-route-id="@m.Id">Change status</a></td>
-            </tr>
+        <tr>
+            <th scope="row">@mr.Id</th>
+            <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
+            <td>@mr.Car.VIN</td>
+            <td>@mr.Car.ProductionYear</td>
+            <td>@mr.Status</td>
+            <td>
+                @foreach (var mu in Model.usedRepairTypes)
+                {
+                    if (mr.Id == mu.RepairId)
+                    {
+                        @mu.RepairType.Name
+                    }
+                }
+            </td>
+            <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddPartToRepair" asp-route-id="@mr.Id">Add Parts</a></td>
+            <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ChangeStatus" asp-route-id="@mr.Id">Change status</a></td>
+            <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddRepairTypeToRepair" asp-route-id="@mr.Id">Add Fault</a></td>
+            <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="SetRepairCost" asp-route-id="@mr.Id">Valuation</a></td>
+        </tr>
         }
 
     </tbody>

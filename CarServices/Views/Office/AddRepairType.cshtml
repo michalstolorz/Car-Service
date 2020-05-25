@@ -1,0 +1,27 @@
+﻿@model RepairType
+@{
+    ViewData["Title"] = "AddRepairType";
+}
+
+<h1>AddRepairType</h1>
+
+<form asp-action="AddRepairType" method="post" class="mt-3">
+    <div asp-validation-summary="All" class="text-danger">
+    </div>
+
+    <div class="form-group row">
+        <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Name" class="form-control" placeholder="Repair Type">
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary" style="width:auto">
+                Add
+            </button>
+        </div>
+    </div>
+
+</form>

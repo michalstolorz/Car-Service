@@ -27,11 +27,13 @@ namespace CarServices.Controllers
         private readonly IEmployeesRepository _employeesRepository;
         private readonly IRepairTypeRepository _repairTypeRepository;
         private readonly IRepairRepository _repairRepository;
+        private readonly IUsedRepairTypeRepository _usedRepairTypeRepository;
 
         public OfficeController(ICustomerRepository customerRepository, ICarRepository carRepository,
             ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, ILocalDataRepository localDataRepository,
             IEmployeesRepository employeesRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager,
-            IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IHttpContextAccessor httpContextAccessor)
+            IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IHttpContextAccessor httpContextAccessor,
+            IUsedRepairTypeRepository usedRepairTypeRepository)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -44,6 +46,7 @@ namespace CarServices.Controllers
             _employeesRepository = employeesRepository;
             _repairTypeRepository = repairTypeRepository;
             _repairRepository = repairRepository;
+            _usedRepairTypeRepository = usedRepairTypeRepository;
         }
 
         //dodawanie/przegląd klientow, dodawanie aut, zamawianie czesci, udzielanie rabatu, dodawanie nowej naprawy
@@ -145,7 +148,7 @@ namespace CarServices.Controllers
         public IActionResult AddRepair()
         {
             AddRepairViewModel addRepairViewModel = new AddRepairViewModel();
-            addRepairViewModel.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
+            addRepairViewModel.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList(); 
             addRepairViewModel.CarList = new List<SelectListItem>();
             var carList = _carRepository.GetAllCar().ToList();
             foreach (var c in carList)
@@ -167,10 +170,16 @@ namespace CarServices.Controllers
                 Repair repair = new Repair()
                 {
                     CarId = addRepairViewModel.ChoosenCarId,
-                    TypeId = addRepairViewModel.ChoosenTypeId,
                     Status = "Waiting for assignment"
                 };
                 _repairRepository.Add(repair);
+                List<Repair> repairs = _repairRepository.GetAllRepair().ToList();
+                UsedRepairType usedRepairType = new UsedRepairType()
+                {
+                    RepairId = repairs.LastOrDefault().Id,
+                    RepairTypeId = addRepairViewModel.ChoosenTypeId
+                };
+                _usedRepairTypeRepository.Add(usedRepairType);
                 return RedirectToAction("index", "home");
             }
             addRepairViewModel.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
@@ -209,6 +218,23 @@ namespace CarServices.Controllers
             }
             setDiscountViewModel.CustomerList = _customerRepository.GetAllCustomer().ToList();
             return View(setDiscountViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult AddRepairType()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddRepairType(RepairType model)
+        {
+            if (ModelState.IsValid)
+            {
+                _repairTypeRepository.Add(model);
+                return RedirectToAction("Index", "Home");
+            }
+            return View(model);
         }
     }
 }
