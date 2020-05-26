@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Repair>
+﻿@model ListRepairAssignViewModel
 @{
     ViewData["Title"] = "ListRepairAssign";
 }
@@ -17,48 +17,64 @@
             <th scope="col">Assign Employee</th>
     </thead>
     <tbody>
-        @foreach (var m in Model)
+        @foreach (var mr in Model.repairs)
         {
-            @if (m.EmployeesId != 0)
+            @if (mr.EmployeesId != 0)
             {
 
                 <tr style="background-color: green;">
-                    <th scope="row">@m.Id</th>
-                    <td>@m.Car.CarModel.CarBrand.Name @m.Car.CarModel.Name</td>
-                    <td>@m.Car.VIN</td>
-                    <td>@m.Car.ProductionYear</td>
-                    <td>@m.Status</td>
-                    <td>@m.RepairType.Name</td>
-                    @if (m.EmployeesId == 0)
+                    <th scope="row">@mr.Id</th>
+                    <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
+                    <td>@mr.Car.VIN</td>
+                    <td>@mr.Car.ProductionYear</td>
+                    <td>@mr.Status</td>
+                    <td>
+                        @foreach (var mu in Model.usedRepairTypes)
+                        {
+                            if (mr.Id == mu.RepairId)
+                            {
+                                @mu.RepairType.Name
+                            }
+                        }
+                    </td>
+                    @if (mr.EmployeesId == 0)
                     {
                         <td>Not Assign</td>
                     }
                     else
                     {
-                        <td>@m.Employees.Name @m.Employees.Surname</td>
+                        <td>@mr.Employees.Name @mr.Employees.Surname</td>
                     }
-                    <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AssignRepair" asp-route-id="@m.Id">Assign</a></td>
+                    <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AssignRepair" asp-route-id="@mr.Id">Assign</a></td>
                 </tr>
             }
             else
             {
 
                 <tr>
-                    <th scope="row">@m.Id</th>
-                    <td>@m.Car.CarModel.CarBrand.Name @m.Car.CarModel.Name</td>
-                    <td>@m.Car.VIN</td>
-                    <td>@m.Car.ProductionYear</td>
-                    <td>@m.Status</td>
-                    <td>@m.RepairType.Name</td>
-                    @if (m.EmployeesId == 0)
+                    <th scope="row">@mr.Id</th>
+                    <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
+                    <td>@mr.Car.VIN</td>
+                    <td>@mr.Car.ProductionYear</td>
+                    <td>@mr.Status</td>
+                    <td>
+                        @foreach (var mu in Model.usedRepairTypes)
+                        {
+                            if (mr.Id == mu.RepairId)
+                            {
+                                @mu.RepairType.Name
+                            }
+                        }
+                    </td>
+                    @if (mr.EmployeesId == 0)
                     {
                         <td>Not Assign</td>
                     }
                     else
                     {
-                        <td>@m.Employees.Name @m.Employees.Surname</td>
+                        <td>@mr.Employees.Name @mr.Employees.Surname</td>
                     }
-                    <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AssignRepair" asp-route-id="@m.Id">Assign</a></td>
+                    <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AssignRepair" asp-route-id="@mr.Id">Assign</a></td>
                 </tr>
             }
         }
