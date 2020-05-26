@@ -31,25 +31,26 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListEmployees">Employees List</a>
                         </li>
-                        @if (signInManager.IsSignedIn(User) && User.IsInRole("OfficeWorker")) { 
+                        @if (signInManager.IsSignedIn(User) && User.IsInRole("OfficeWorker"))
+                        {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListCustomers">Customers List</a>
                             </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddCar">Add Car</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddRepair">Add Repair</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddRepairType">Add Repair Type</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="SetDiscount">Set Discount</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="CreateOrder">Create order</a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddCar">Add Car</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddRepair">Add Repair</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddRepairType">Add Repair Type</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="SetDiscount">Set Discount</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="CreateOrder">Create order</a>
+                            </li>
                         }
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("Mechanic"))
                         {
@@ -59,6 +60,7 @@
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Mechanic" asp-action="ListRepairAssignedToMechanic">Your Repairs</a>
                             </li>
+
                         }
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {

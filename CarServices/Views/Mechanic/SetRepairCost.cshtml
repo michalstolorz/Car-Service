@@ -31,15 +31,20 @@
                                 <td scope="row">@m.Part.PartPrice</td>
                             </tr>
                         }
+                        <tr>
+                            <th scope="row"></th>
+                            <td scope="row"></td>
+                            <td scope="row">All used parts price:</td>
+                            <td scope="row">@Model.CostForParts</td>
+                        </tr>
                     }
                 </tbody>
             </table>
         </div>
     </div>
     <div class="form-group row">
-        <label asp-for="CostForWork" class="col-sm-2 col-form-label"></label>
+        <label asp-for="CostForWork" class="col-sm-2 col-form-label">Set repair cost:</label>
         <div class="col-sm-10" style="display: block">
-            <label style="display: inline-block; text-align: left; width: 150px">@Model.CostForParts</label>
             <input asp-for="CostForWork" class="form-control" placeholder="Cost for work">
             <span asp-validation-for="CostForWork" class="text-danger"></span>
         </div>
