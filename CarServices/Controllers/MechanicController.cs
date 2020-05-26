@@ -57,7 +57,7 @@ namespace CarServices.Controllers
         //[Authorize(Policy = "Admin")]
         public IActionResult ListRepairAssign()
         {
-            List<Repair> listRepairs = _repairRepository.GetAllRepair().ToList();
+            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => r.Status != "Complete").ToList(); 
             List<UsedRepairType> listUsedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().ToList();
             foreach (var l in listRepairs)
             {
@@ -74,7 +74,7 @@ namespace CarServices.Controllers
                     l.Employees = employee;
                 }
             }
-            foreach(var l in listUsedRepairTypes)
+            foreach (var l in listUsedRepairTypes)
             {
                 RepairType repairType = _repairTypeRepository.GetRepairType(l.RepairTypeId);
                 repairType.Name += "\n";
@@ -122,7 +122,7 @@ namespace CarServices.Controllers
                 l.Repair.Car.CarModel = carModel;
                 CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
                 l.Repair.Car.CarModel.CarBrand = carBrand;
-                RepairType repairType = _repairTypeRepository.GetRepairType(l.RepairTypeId); 
+                RepairType repairType = _repairTypeRepository.GetRepairType(l.RepairTypeId);
                 repairType.Name += "\n";
                 l.RepairType = repairType;
             }
@@ -150,22 +150,6 @@ namespace CarServices.Controllers
                 RepairId = id
             };
             return View(model);
-        }
-
-        [HttpPost]
-        public ActionResult GetQuantityByPartId(int partId)
-        {
-            //List<CarModel> carModels = new List<CarModel>();
-            //carModels = _carModelRepository.GetAllCarModel().Where(m => m.BrandId == brandId).ToList();
-            //SelectList model = new SelectList(carModels, "Id", "Name", 0);
-
-            //List<int> qlist = new List<int>();
-            //qlist.Add(_partsRepository.GetParts(partId).Quantity);
-            //SelectList model = new SelectList( qlist, "Id", "Name", 0);
-
-            List<int> qlist = new List<int>();
-            qlist.Add(_partsRepository.GetParts(partId).Quantity);
-            return Json(qlist);
         }
 
         [HttpPost]
@@ -240,11 +224,11 @@ namespace CarServices.Controllers
             model.UsedParts = usedPartslist;
             return View(model);
         }
-        
+
         [HttpGet]
         public IActionResult ChangeStatus(int id)
         {
-            ChangeStatusViewModel model = new ChangeStatusViewModel() {  Id = id };
+            ChangeStatusViewModel model = new ChangeStatusViewModel() { Id = id };
             return View(model);
         }
 
@@ -275,18 +259,25 @@ namespace CarServices.Controllers
         [HttpPost]
         public IActionResult AddRepairTypeToRepair(AddRepairTypeToRepairViewModel model)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid) 
             {
-                UsedRepairType usedRepairType = new UsedRepairType()
+                List<UsedRepairType> usedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().Where(u => u.RepairId == model.RepairId).ToList();
+                if (usedRepairTypes.FirstOrDefault().Equals(null))
                 {
-                    RepairId = model.RepairId,
-                    RepairTypeId = model.ChoosenRepairTypeId
-                };
-                _usedRepairTypeRepository.Add(usedRepairType);
-                return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
+                    UsedRepairType usedRepairType = new UsedRepairType()
+                    {
+                        RepairId = model.RepairId,
+                        RepairTypeId = model.ChoosenRepairTypeId
+                    };
+                    _usedRepairTypeRepository.Add(usedRepairType);
+                    return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
+
+                }
+                ModelState.AddModelError(string.Empty, "Repair type already added to current repair");
             }
             model.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
-            ModelState.AddModelError(string.Empty, "Repair type hadn't been choosen");
+            if (model.ChoosenRepairTypeId == 0)
+                ModelState.AddModelError(string.Empty, "Repair type hadn't been choosen");
             return View(model);
         }
     }

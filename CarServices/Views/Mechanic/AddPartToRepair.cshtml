@@ -60,29 +60,3 @@
     </div>
 
 </form>
-
-@*<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-<script language="javascript" type="text/javascript">
-    function GetPartQuantity(_partId) {
-        var procemessage = "<option value='0'> Please wait...</option>";
-        $("#ddlpart").html(procemessage).show();
-        var url = "/Mechanic/GetQuantityByPartId/";
-
-        $.ajax({
-            url: url,
-            data: { partid: _partId },
-            cache: false,
-            type: "POST",
-            success: function (data) {
-                var markup = "<option value='0'>Select Model</option>";
-                for (var x = 0; x < data.length; x++) {
-                    markup += "<option value=" + data[x].value + ">" + data[x].text + "</option>";
-                }
-                $("#ddlpart").html(markup).show();
-            },
-            error: function (reponse) {
-                alert("error : " + reponse);
-            }
-        });
-    }
-</script>*@

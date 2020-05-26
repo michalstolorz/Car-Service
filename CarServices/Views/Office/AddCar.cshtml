@@ -23,7 +23,7 @@
     <div class="form-group row">
         <label asp-for="ChoosenCustomerId" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10" >
-            @Html.DropDownListFor(m => m.ChoosenCustomerId, new SelectList(Model.CustomersList, "Id", "Name"), "Select Customer", new { @style = "width:200px;" } )
+            @Html.DropDownListFor(m => m.ChoosenCustomerId, new SelectList(Model.CustomersList, "Value", "Text"), "Select Customer", new { @style = "width:200px;" } )
             <span asp-validation-for="ChoosenCustomerId" class="text-danger"></span>
         </div>
     </div>

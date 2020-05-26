@@ -26,10 +26,7 @@
                             <a class="nav-link text-white" asp-area="" asp-controller="Parts" asp-action="Index">Parts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListEmployees">Employees List</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Boss" asp-action="CreateInvoice">Invoice</a>
                         </li>
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("OfficeWorker"))
                         {
@@ -47,6 +44,9 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="SetDiscount">Set Discount</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListEmployees">Employees List</a>
                             </li>
                         }
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("Mechanic"))

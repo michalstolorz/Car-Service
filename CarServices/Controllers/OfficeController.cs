@@ -49,8 +49,6 @@ namespace CarServices.Controllers
             _usedRepairTypeRepository = usedRepairTypeRepository;
         }
 
-        //dodawanie/przegląd klientow, dodawanie aut, zamawianie czesci, udzielanie rabatu, dodawanie nowej naprawy
-
         [HttpGet]
         public IActionResult ListCustomers()
         {
@@ -99,10 +97,12 @@ namespace CarServices.Controllers
         public IActionResult AddCar()
         {
             AddCarViewModel model = new AddCarViewModel();
-            //model.CarBrands = new List<CarBrand>();
             model.CarBrands = _carBrandRepository.GetAllCarBrand().ToList();
-            //model.CustomersList = new List<Customer>();
-            model.CustomersList = _customerRepository.GetAllCustomer().ToList();
+            List<Customer> customerList = _customerRepository.GetAllCustomer().ToList(); 
+            model.CustomersList = new List<SelectListItem>();
+            foreach(var c in customerList)
+                model.CustomersList.Add(new SelectListItem { Text = c.Name + " " + c.Surname, Value = c.Id.ToString() });
+
             return View(model);
         }
 
@@ -137,19 +137,21 @@ namespace CarServices.Controllers
                 _carRepository.Add(car);
                 return RedirectToAction("index", "home");
             }
-            //model.CarBrands = new List<CarBrand>();
             model.CarBrands = _carBrandRepository.GetAllCarBrand().ToList();
-            //model.CustomersList = new List<Customer>();
-            model.CustomersList = _customerRepository.GetAllCustomer().ToList();
+            List<Customer> customerList = _customerRepository.GetAllCustomer().ToList();
+            model.CustomersList = new List<SelectListItem>();
+            foreach (var c in customerList)
+                model.CustomersList.Add(new SelectListItem { Text = c.Name + " " + c.Surname, Value = c.Id.ToString() });
+
             return View(model);
         }
 
         [HttpGet]
         public IActionResult AddRepair()
         {
-            AddRepairViewModel addRepairViewModel = new AddRepairViewModel();
-            addRepairViewModel.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList(); 
-            addRepairViewModel.CarList = new List<SelectListItem>();
+            AddRepairViewModel model = new AddRepairViewModel();
+            model.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
+            model.CarList = new List<SelectListItem>();
             var carList = _carRepository.GetAllCar().ToList();
             foreach (var c in carList)
             {
@@ -157,19 +159,19 @@ namespace CarServices.Controllers
                 c.CarModel = carModel;
                 CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
                 c.CarModel.CarBrand = carBrand;
-                addRepairViewModel.CarList.Add(new SelectListItem { Text = c.CarModel.CarBrand.Name.ToString() + " " + c.CarModel.Name.ToString() + " " + c.ProductionYear.ToString() + " " + c.VIN.ToString(), Value = c.Id.ToString() });
+                model.CarList.Add(new SelectListItem { Text = c.CarModel.CarBrand.Name.ToString() + " " + c.CarModel.Name.ToString() + " " + c.ProductionYear.ToString() + " " + c.VIN.ToString(), Value = c.Id.ToString() });
             }
-            return View(addRepairViewModel);
+            return View(model);
         }
 
         [HttpPost]
-        public IActionResult AddRepair(AddRepairViewModel addRepairViewModel)
+        public IActionResult AddRepair(AddRepairViewModel model)
         {
             if (ModelState.IsValid)
             {
                 Repair repair = new Repair()
                 {
-                    CarId = addRepairViewModel.ChoosenCarId,
+                    CarId = model.ChoosenCarId,
                     Status = "Waiting for assignment"
                 };
                 _repairRepository.Add(repair);
@@ -177,13 +179,13 @@ namespace CarServices.Controllers
                 UsedRepairType usedRepairType = new UsedRepairType()
                 {
                     RepairId = repairs.LastOrDefault().Id,
-                    RepairTypeId = addRepairViewModel.ChoosenTypeId
+                    RepairTypeId = model.ChoosenTypeId
                 };
                 _usedRepairTypeRepository.Add(usedRepairType);
                 return RedirectToAction("index", "home");
             }
-            addRepairViewModel.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
-            addRepairViewModel.CarList = new List<SelectListItem>();
+            model.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
+            model.CarList = new List<SelectListItem>();
             var carList = _carRepository.GetAllCar().ToList();
             foreach (var c in carList)
             {
@@ -191,33 +193,45 @@ namespace CarServices.Controllers
                 c.CarModel = carModel;
                 CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
                 c.CarModel.CarBrand = carBrand;
-                addRepairViewModel.CarList.Add(new SelectListItem { Text = c.CarModel.CarBrand.Name.ToString() + " " + c.CarModel.Name.ToString() + " " + c.ProductionYear.ToString() + " " + c.VIN.ToString(), Value = c.Id.ToString() });
+                model.CarList.Add(new SelectListItem { Text = c.CarModel.CarBrand.Name.ToString() + " " + c.CarModel.Name.ToString() + " " + c.ProductionYear.ToString() + " " + c.VIN.ToString(), Value = c.Id.ToString() });
             }
-            return View(addRepairViewModel);
+            return View(model);
         }
 
         [HttpGet]
         public IActionResult SetDiscount()
         {
             SetDiscountViewModel model = new SetDiscountViewModel();
-            //model.CustomerList = new List<Customer>();
-            model.CustomerList = _customerRepository.GetAllCustomer().ToList();
+            List<Customer> customerList = _customerRepository.GetAllCustomer().ToList();
+            model.CustomersList = new List<SelectListItem>();
+            foreach (var c in customerList)
+                model.CustomersList.Add(new SelectListItem { Text = c.Name + " " + c.Surname, Value = c.Id.ToString() });
+
+
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult SetDiscount(SetDiscountViewModel setDiscountViewModel)
+        public IActionResult SetDiscount(SetDiscountViewModel model)
         {
             if (ModelState.IsValid)
             {
-                Customer customer = new Customer();
-                customer = _customerRepository.GetCustomer(setDiscountViewModel.Id);
-                customer.Discount = setDiscountViewModel.Discount;
-                _customerRepository.Update(customer);
-                return RedirectToAction("listcustomers", "office", _customerRepository.GetAllCustomer().ToList());
+                if (model.Discount >= 0 && model.Discount <= 100)
+                {
+                    Customer customer = new Customer();
+                    customer = _customerRepository.GetCustomer(model.Id);
+                    customer.Discount = model.Discount;
+                    _customerRepository.Update(customer);
+                    return RedirectToAction("listcustomers", "office", _customerRepository.GetAllCustomer().ToList());
+                }
+                ModelState.AddModelError(string.Empty, "Wrong value of discount. It sholud be between 0 and 100");
             }
-            setDiscountViewModel.CustomerList = _customerRepository.GetAllCustomer().ToList();
-            return View(setDiscountViewModel);
+            List<Customer> customerList = _customerRepository.GetAllCustomer().ToList();
+            model.CustomersList = new List<SelectListItem>();
+            foreach (var c in customerList)
+                model.CustomersList.Add(new SelectListItem { Text = c.Name + " " + c.Surname, Value = c.Id.ToString() });
+
+            return View(model);
         }
 
         [HttpGet]
@@ -231,8 +245,13 @@ namespace CarServices.Controllers
         {
             if (ModelState.IsValid)
             {
-                _repairTypeRepository.Add(model);
-                return RedirectToAction("Index", "Home");
+                List<RepairType> repairTypes = _repairTypeRepository.GetAllRepairType().ToList();
+                if (repairTypes.FirstOrDefault().Equals(null))
+                {
+                    _repairTypeRepository.Add(model);
+                    return RedirectToAction("Index", "Home");
+                }
+                ModelState.AddModelError(string.Empty, "Repair type already exist");
             }
             return View(model);
         }
