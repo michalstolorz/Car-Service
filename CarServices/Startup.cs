@@ -12,6 +12,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using CarServices.Models.Interfaces;
+using CarServices.Models.LocalDataRepository;
+using System.Net;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace CarServices
 {
@@ -38,10 +43,22 @@ namespace CarServices
                 options.Password.RequireDigit = false;
                 options.Password.RequiredUniqueChars = 0;
                 options.Password.RequiredLength = 3;
-            }).AddEntityFrameworkStores<AppDbContext>();
+            }).AddEntityFrameworkStores<AppDbContext>().AddRoles<IdentityRole>();
             services.AddControllersWithViews();
             services.AddRazorPages();
-            services.AddMvc().AddXmlSerializerFormatters();
+            services.AddMvc(
+            //    config =>
+            //{
+            //    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+            //    config.Filters.Add(new AuthorizeFilter(policy));
+            //}
+            ).AddXmlSerializerFormatters();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy =>
+                                  policy.RequireRole("Admin"));
+            });
 
             services.AddScoped<ICarBrandRepository, SQLCarBrandRepository>();
             services.AddScoped<ICarModelRepository, SQLCarModelRepository>();
@@ -50,10 +67,13 @@ namespace CarServices
             services.AddScoped<IEmployeesRepository, SQLEmployeesRepository>();
             services.AddScoped<IInvoiceRepository, SQLInvoiceRepository>();
             services.AddScoped<IOrderRepository, SQLOrderRepository>();
+            services.AddScoped<IOrderDetailsRepository, SQLOrderDetailsRepository>();
             services.AddScoped<IPartsRepository, SQLPartsRepository>();
             services.AddScoped<IRepairRepository, SQLRepairRepository>();
             services.AddScoped<IRepairTypeRepository, SQLRepairTypeRepository>();
             services.AddScoped<IUsedPartsRepository, SQLUsedPartsRepository>();
+            services.AddScoped<IUsedRepairTypeRepository, SQLUsedRepairTypeRepository>();
+            services.AddSingleton<ILocalDataRepository, MockLocalDataRepository>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }

@@ -36,9 +36,14 @@ namespace CarServices.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("VIN")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ModelId");
 
                     b.ToTable("Car");
                 });
@@ -73,6 +78,8 @@ namespace CarServices.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BrandId");
+
                     b.ToTable("CarModel");
                 });
 
@@ -87,15 +94,19 @@ namespace CarServices.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Surname")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TelephoneNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -116,10 +127,14 @@ namespace CarServices.Migrations
                     b.Property<string>("Surname")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Employees");
                 });
@@ -152,15 +167,39 @@ namespace CarServices.Migrations
                     b.Property<DateTime>("OrderTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("Quantity")
-                        .HasColumnType("float");
-
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EmployeesId");
+
                     b.ToTable("Order");
+                });
+
+            modelBuilder.Entity("CarServices.Models.OrderDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("PartId");
+
+                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("CarServices.Models.Parts", b =>
@@ -194,10 +233,10 @@ namespace CarServices.Migrations
                     b.Property<int>("CarId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Cost")
-                        .HasColumnType("int");
+                    b.Property<double?>("Cost")
+                        .HasColumnType("float");
 
-                    b.Property<int>("EmployeesId")
+                    b.Property<int?>("EmployeesId")
                         .HasColumnType("int");
 
                     b.Property<int?>("InvoiceId")
@@ -206,10 +245,13 @@ namespace CarServices.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TypeId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("CarId");
+
+                    b.HasIndex("EmployeesId");
+
+                    b.HasIndex("InvoiceId");
 
                     b.ToTable("Repair");
                 });
@@ -222,6 +264,7 @@ namespace CarServices.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -247,7 +290,33 @@ namespace CarServices.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PartId");
+
+                    b.HasIndex("RepairId");
+
                     b.ToTable("UsedParts");
+                });
+
+            modelBuilder.Entity("CarServices.Models.UsedRepairType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("RepairId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RepairTypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RepairId");
+
+                    b.HasIndex("RepairTypeId");
+
+                    b.ToTable("UsedRepairType");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -313,6 +382,10 @@ namespace CarServices.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
@@ -364,6 +437,8 @@ namespace CarServices.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -444,6 +519,115 @@ namespace CarServices.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("CarServices.Models.ApplicationUser", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.HasDiscriminator().HasValue("ApplicationUser");
+                });
+
+            modelBuilder.Entity("CarServices.Models.Car", b =>
+                {
+                    b.HasOne("CarServices.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CarServices.Models.CarModel", "CarModel")
+                        .WithMany()
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CarServices.Models.CarModel", b =>
+                {
+                    b.HasOne("CarServices.Models.CarBrand", "CarBrand")
+                        .WithMany()
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CarServices.Models.Employees", b =>
+                {
+                    b.HasOne("CarServices.Models.ApplicationUser", "ApplicationUser")
+                        .WithOne("Employees")
+                        .HasForeignKey("CarServices.Models.Employees", "UserId");
+                });
+
+            modelBuilder.Entity("CarServices.Models.Order", b =>
+                {
+                    b.HasOne("CarServices.Models.Employees", "Employees")
+                        .WithMany()
+                        .HasForeignKey("EmployeesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CarServices.Models.OrderDetails", b =>
+                {
+                    b.HasOne("CarServices.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CarServices.Models.Parts", "Part")
+                        .WithMany()
+                        .HasForeignKey("PartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CarServices.Models.Repair", b =>
+                {
+                    b.HasOne("CarServices.Models.Car", "Car")
+                        .WithMany()
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CarServices.Models.Employees", "Employees")
+                        .WithMany()
+                        .HasForeignKey("EmployeesId");
+
+                    b.HasOne("CarServices.Models.Invoice", "Invoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId");
+                });
+
+            modelBuilder.Entity("CarServices.Models.UsedParts", b =>
+                {
+                    b.HasOne("CarServices.Models.Parts", "Part")
+                        .WithMany()
+                        .HasForeignKey("PartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CarServices.Models.Repair", "Repair")
+                        .WithMany()
+                        .HasForeignKey("RepairId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CarServices.Models.UsedRepairType", b =>
+                {
+                    b.HasOne("CarServices.Models.Repair", "Repair")
+                        .WithMany()
+                        .HasForeignKey("RepairId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CarServices.Models.RepairType", "RepairType")
+                        .WithMany()
+                        .HasForeignKey("RepairTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

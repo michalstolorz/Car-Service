@@ -1,22 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using CarServices.Models;
 using CarServices.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarServices.Controllers
 {
+    [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IEmployeesRepository _employeesRepository;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IHttpContextAccessor httpContextAccessor,
+            IEmployeesRepository employeesRepository)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            _httpContextAccessor = httpContextAccessor;
+            _employeesRepository = employeesRepository;
         }
 
         [HttpGet]
@@ -40,7 +50,7 @@ namespace CarServices.Controllers
                 if (result.Succeeded)
                 {
                     await signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("index", "home");
+                    return RedirectToAction("FillEmployee", "account", model);
                 }
 
                 foreach (var error in result.Errors)
@@ -50,6 +60,17 @@ namespace CarServices.Controllers
             }
 
             return View(model);
+        }
+        public IActionResult FillEmployee(RegisterViewModel registerViewModel)
+        {
+            Employees employees = new Employees
+            {
+                UserId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value,
+                Name = registerViewModel.EmployeeName,
+                Surname = registerViewModel.EmployeeSurname
+            };
+            _employeesRepository.Add(employees);
+            return RedirectToAction("index", "home");
         }
 
         [HttpPost]
@@ -66,19 +87,26 @@ namespace CarServices.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl)
         {
             if (ModelState.IsValid)
             {
-            var result = await signInManager.PasswordSignInAsync(
-                model.Name, model.Password, false, false);
+                var result = await signInManager.PasswordSignInAsync(
+                    model.Name, model.Password, false, false);
 
-            if (result.Succeeded)
-            {
-                return RedirectToAction("index", "home");
-            }
+                if (result.Succeeded)
+                {
+                    if (!string.IsNullOrEmpty(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("index", "home");
+                    }
+                }
 
-            ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
+                ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
             }
 
             return View(model);

@@ -1,0 +1,28 @@
+﻿@model AddRepairTypeToRepairViewModel
+@{
+    ViewData["Title"] = "AddRepairTypeToRepair";
+}
+
+<h1>AddRepairTypeToRepair</h1>
+
+<form asp-action="AddRepairTypeToRepair" method="post" class="mt-3">
+    <div asp-validation-summary="All" class="text-danger">
+    </div>
+    <div class="form-group row">
+        <label asp-for="ChoosenRepairTypeId" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            @Html.DropDownListFor(m => m.ChoosenRepairTypeId, new SelectList(Model.RepairTypeList, "Id", "Name"), "Select Type", new { @style = "width:200px;" })
+            <span asp-validation-for="ChoosenRepairTypeId" class="text-danger"></span>
+        </div>
+    </div>
+    @Html.HiddenFor(model => model.RepairId)
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary" style="width:auto">
+                Add Type
+            </button>
+            <a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ListRepairAssignedToMechanic">Back</a>
+        </div>
+    </div>
+
+</form>

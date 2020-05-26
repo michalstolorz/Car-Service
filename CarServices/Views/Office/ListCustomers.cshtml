@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Customer>
+@{
+    ViewData["Title"] = "ListCustomers";
+}
+
+    <div>
+        <a class="btn btn-primary" role="button" asp-controller="Office" asp-action="AddCustomer">Add new customer</a>
+    </div>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Surname</th>
+            <th scope="col">Telephone Number</th>
+            <th scope="col">E-mail</th>
+            <th scope="col">Discount</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var m in Model)
+            {
+                <tr>
+                    <th scope="row">@m.Id</th>
+                    <td>@m.Name</td>
+                    <td>@m.Surname</td>
+                    <td>@m.TelephoneNumber</td>
+                    <td>@m.Email</td>
+                    <td>@m.Discount</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
