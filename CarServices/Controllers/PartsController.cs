@@ -87,8 +87,23 @@ namespace CarServices.Controllers
         [HttpPost]
         public IActionResult AddParts(AddPartsViewModel addPartsViewModel)
         {
+
             if (ModelState.IsValid)
             {
+                if (addPartsViewModel.PartPrice < 0.0)
+                {
+                    ModelState.AddModelError(string.Empty, "Price of the part cannot be negative");
+                    return View(addPartsViewModel);
+                }
+                List<Parts> PartsList = _partsRepository.GetAllParts().ToList();
+                foreach (var element in PartsList)
+                {
+                    if (element.Name.Equals(addPartsViewModel.Name))
+                    {
+                        ModelState.AddModelError(string.Empty, "Parts with this name already exists ");
+                        return View(addPartsViewModel);
+                    }
+                }
                 Parts parts = new Parts
                 {
                     Name = addPartsViewModel.Name,

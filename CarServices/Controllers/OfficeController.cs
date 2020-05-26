@@ -27,12 +27,18 @@ namespace CarServices.Controllers
         private readonly IEmployeesRepository _employeesRepository;
         private readonly IRepairTypeRepository _repairTypeRepository;
         private readonly IRepairRepository _repairRepository;
+        private readonly IPartsRepository _partsRepository;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IOrderDetailsRepository _orderDetailsRepository;
         private readonly IUsedRepairTypeRepository _usedRepairTypeRepository;
+
+        
 
         public OfficeController(ICustomerRepository customerRepository, ICarRepository carRepository,
             ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, ILocalDataRepository localDataRepository,
             IEmployeesRepository employeesRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager,
-            IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IHttpContextAccessor httpContextAccessor,
+            IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IHttpContextAccessor httpContextAccessor, 
+            IPartsRepository partsRepository, IOrderRepository orderRepository, IOrderDetailsRepository orderDetailsRepository,
             IUsedRepairTypeRepository usedRepairTypeRepository)
         {
             _roleManager = roleManager;
@@ -46,6 +52,9 @@ namespace CarServices.Controllers
             _employeesRepository = employeesRepository;
             _repairTypeRepository = repairTypeRepository;
             _repairRepository = repairRepository;
+            _partsRepository = partsRepository;
+            _orderRepository = orderRepository;
+            _orderDetailsRepository = orderDetailsRepository;
             _usedRepairTypeRepository = usedRepairTypeRepository;
         }
 
@@ -232,6 +241,73 @@ namespace CarServices.Controllers
                 model.CustomersList.Add(new SelectListItem { Text = c.Name + " " + c.Surname, Value = c.Id.ToString() });
 
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult CreateOrder()
+        {
+            CreateOrderViewModel model = new CreateOrderViewModel();
+            model.AllPartsList = _partsRepository.GetAllParts().ToList();
+            model.PartsToOrderList = _localDataRepository.GetOrderDetails();
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult CreateOrder(CreateOrderViewModel createOrderViewModel)
+        {
+            string user = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            Employees employees = _employeesRepository.GetEmployeesByUserId(user);
+            Order order = new Order();
+            //order.Employees = employees;
+            order.EmployeesId = employees.Id;
+            order.OrderTime = DateTime.Now;
+            order.Status = "In progress";
+            _orderRepository.Add(order);
+            List<OrderDetails> orderDetails = _localDataRepository.GetOrderDetails();
+            foreach(OrderDetails o in orderDetails)
+            {
+                //o.Order = order;
+                o.OrderId = order.Id;
+                o.Part = null;
+                _orderDetailsRepository.Add(o);
+            }
+            _localDataRepository.ClearOrderDetails();
+            return RedirectToAction("index", "home");
+        }
+
+        [HttpPost]
+        public IActionResult AddToOrder(CreateOrderViewModel createOrderViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                List<OrderDetails> orderDetails = _localDataRepository.GetOrderDetails();
+ 
+                foreach (var o in orderDetails)
+                {
+                    if (o.PartId == createOrderViewModel.ChoosenPartId)
+                    {
+                        o.Quantity += createOrderViewModel.AddedQuantity;
+                        return RedirectToAction("createorder", "office");
+                    }
+                }
+                 OrderDetails orderDetail = new OrderDetails();
+                 orderDetail.Part = _partsRepository.GetParts(createOrderViewModel.ChoosenPartId);
+                 orderDetail.PartId = createOrderViewModel.ChoosenPartId;
+                 orderDetail.Quantity = createOrderViewModel.AddedQuantity;
+                 _localDataRepository.AddOrderDetail(orderDetail);
+                return RedirectToAction("createorder", "office");
+            }
+            createOrderViewModel.AllPartsList = _partsRepository.GetAllParts().ToList();
+            createOrderViewModel.PartsToOrderList = _localDataRepository.GetOrderDetails();
+            return View("CreateOrder",createOrderViewModel);
+        }
+
+        
+        [HttpGet]
+        public IActionResult RemovePartFromOrder(int i)
+        {
+            _localDataRepository.DeleteOrderDetail(i);
+            return RedirectToAction("createorder", "office");
         }
 
         [HttpGet]

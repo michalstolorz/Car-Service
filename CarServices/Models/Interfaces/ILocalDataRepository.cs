@@ -10,5 +10,18 @@ namespace CarServices.Models.Interfaces
         int GetModelId();
 
         void SetModelId(int Id);
+
+        List<OrderDetails> GetOrderDetails();
+
+        void AddOrderDetail(OrderDetails orderDetails);
+
+        void DeleteOrderDetail(int id);
+
+        //void SetOrder(Order order);
+
+        //Order GetOrder();
+
+        void ClearOrderDetails();
+
     }
 }
