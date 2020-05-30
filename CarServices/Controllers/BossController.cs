@@ -252,6 +252,27 @@ namespace CarServices.Controllers
 
             return RedirectToAction("index", "home");
         }
-        
+
+
+
+        [HttpGet]
+        public IActionResult CreateReport()
+        {
+            CreateReportViewModel model = new CreateReportViewModel();
+
+
+
+            return View(model);
+        }
+
+
+
+        [HttpPost]
+        public IActionResult CreateReport(CreateReportViewModel model)
+        {
+
+            return View(model);
+        }
+
     }
 }
