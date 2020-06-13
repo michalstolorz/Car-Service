@@ -261,8 +261,8 @@ namespace CarServices.Controllers
         {
             if (ModelState.IsValid) 
             {
-                List<UsedRepairType> usedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().Where(u => u.RepairId == model.RepairId).ToList();
-                if (usedRepairTypes.FirstOrDefault().Equals(null))
+                List<UsedRepairType> usedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().Where(u => (u.RepairId == model.RepairId) && (u.RepairTypeId == model.ChoosenRepairTypeId) ).ToList();
+                if (usedRepairTypes.Count == 0)
                 {
                     UsedRepairType usedRepairType = new UsedRepairType()
                     {

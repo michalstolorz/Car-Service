@@ -31,12 +31,13 @@ namespace CarServices.Controllers
             _httpContextAccessor = httpContextAccessor;
             _partsRepository = partsRepository;
         }
-        // GET: /<controller>/
+
         public IActionResult Index()
         {
             return View();
         }
 
+        [HttpGet]
         public IActionResult AvailiableParts()
         {
             var carParts = _partsRepository.GetAllParts();
@@ -46,14 +47,17 @@ namespace CarServices.Controllers
             };
             return View(viewModel);
         }
+
         public IActionResult OrderingParts()
         {
             return View();
         }
+
         public IActionResult ReportingMissingParts()
         {
             return View();
         }
+
         [HttpGet]
         public IActionResult SupplyParts()
         {
@@ -95,23 +99,30 @@ namespace CarServices.Controllers
                     ModelState.AddModelError(string.Empty, "Price of the part cannot be negative");
                     return View(addPartsViewModel);
                 }
-                List<Parts> PartsList = _partsRepository.GetAllParts().ToList();
-                foreach (var element in PartsList)
+
+                //List<Parts> PartsList = _partsRepository.GetAllParts().ToList();
+                //foreach (var element in PartsList)
+                //{
+                //    if (element.Name.Equals(addPartsViewModel.Name))
+                //    {
+                //        ModelState.AddModelError(string.Empty, "Parts with this name already exists ");
+                //        return View(addPartsViewModel);
+                //    }
+                //}
+
+                List<Parts> PartsList = _partsRepository.GetAllParts().Where(p => p.Name == addPartsViewModel.Name).ToList();
+                if (PartsList.Count == 0)
                 {
-                    if (element.Name.Equals(addPartsViewModel.Name))
+                    Parts parts = new Parts
                     {
-                        ModelState.AddModelError(string.Empty, "Parts with this name already exists ");
-                        return View(addPartsViewModel);
-                    }
+                        Name = addPartsViewModel.Name,
+                        Quantity = addPartsViewModel.Quantity,
+                        PartPrice = addPartsViewModel.PartPrice
+                    };
+                    _partsRepository.Add(parts);
+                    return RedirectToAction("AvailiableParts", "Parts");
                 }
-                Parts parts = new Parts
-                {
-                    Name = addPartsViewModel.Name,
-                    Quantity = addPartsViewModel.Quantity,
-                    PartPrice = addPartsViewModel.PartPrice
-                };
-                _partsRepository.Add(parts);
-                return RedirectToAction("AvailiableParts", "Parts");
+                ModelState.AddModelError(string.Empty, "Parts with this name already exists ");
             }
             return View(addPartsViewModel);
         }

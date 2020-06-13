@@ -185,10 +185,20 @@ namespace CarServices.Controllers
 
             List<CreateInvoicePDFViewModel> model = new List<CreateInvoicePDFViewModel>();
             int i = 1;
+            const double TaxNetValueValue = 0.77;
+            const double VATValue = 0.23;
             double summaryPartsPrice = 0;
             foreach (var u in usedPartsList)
             {
-                model.Add(new CreateInvoicePDFViewModel { Id = i, Name = u.Part.Name, SinglePrice = u.Part.PartPrice, Quantity = u.Quantity, SummaryPrice = u.Part.PartPrice * u.Quantity });
+                model.Add(new CreateInvoicePDFViewModel { Id = i, 
+                    Name = u.Part.Name, 
+                    Quantity = u.Quantity,
+                    NetPrice = u.Part.PartPrice * TaxNetValueValue, 
+                    NetValue = u.Part.PartPrice * TaxNetValueValue * u.Quantity, 
+                    Tax = (VATValue * 100).ToString() + "%", 
+                    TaxValue = u.Part.PartPrice * VATValue * u.Quantity, 
+                    SummaryPrice = u.Part.PartPrice * u.Quantity });
+
                 summaryPartsPrice += u.Part.PartPrice * u.Quantity;
                 i++;
             }
@@ -196,7 +206,13 @@ namespace CarServices.Controllers
             foreach (var u in usedRepairTypesList)
                 allRepairNames += u.RepairType.Name + "\n";
 
-            model.Add(new CreateInvoicePDFViewModel { Id = i, Name = allRepairNames, Quantity = 1, SummaryPrice = (double)repair.Cost });
+            model.Add(new CreateInvoicePDFViewModel { Id = i, Name = allRepairNames, 
+                Quantity = 1, 
+                NetPrice = (double)(repair.Cost * TaxNetValueValue), 
+                NetValue = (double)(repair.Cost * TaxNetValueValue), 
+                Tax = (VATValue * 100).ToString() + "%", 
+                TaxValue = (double)repair.Cost * VATValue, 
+                SummaryPrice = (double)repair.Cost });
 
             grid.DataSource = model; 
 
