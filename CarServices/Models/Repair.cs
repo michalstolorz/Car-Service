@@ -26,5 +26,6 @@ namespace CarServices.Models
         public int? InvoiceId { get; set; }
         public string Status { get; set; }
         public double? Cost { get; set; }
+        public DateTime? DateOfCompletion { get; set; }
     }
 }

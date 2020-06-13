@@ -19,6 +19,8 @@
     <Compile Remove="Migrations\20200520111926_FixRepairModel.Designer.cs" />
     <Compile Remove="Migrations\20200525110719_UsedRepairTypeADD.cs" />
     <Compile Remove="Migrations\20200525110719_UsedRepairTypeADD.Designer.cs" />
+    <Compile Remove="Migrations\20200530161109_RepairDateOfCompletion.cs" />
+    <Compile Remove="Migrations\20200530161109_RepairDateOfCompletion.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -37,7 +37,7 @@ namespace CarServices.Models
             return context.Employees;
         }
 
-        public Employees GetEmployees(int Id)
+        public Employees GetEmployees(int? Id)
         {
             return context.Employees.Find(Id);
         }

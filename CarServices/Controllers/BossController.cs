@@ -268,6 +268,67 @@ namespace CarServices.Controllers
 
             return RedirectToAction("index", "home");
         }
-        
+
+
+
+        [HttpGet]
+        public IActionResult CreateReport()
+        {
+            CreateReportViewModel model = new CreateReportViewModel();
+            return View(model);
+        }
+
+
+
+        [HttpPost]
+        public IActionResult CreateReport(CreateReportViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                List<Repair> repairs = _repairRepository.GetAllRepair().ToList();
+
+                foreach (var repair in repairs)
+                {
+                    if (repair.DateOfCompletion != null)
+                    
+                    if (repair.DateOfCompletion > DateTime.Now.AddDays(-model.ChoosenNumberOfDays))
+                        {
+                            CreateReportViewModel.RepairReportEntity repairEntity = new CreateReportViewModel.RepairReportEntity();
+                            repairEntity.Repair = repair;
+                            repairEntity.Employee = _employeesRepository.GetEmployees(repair.EmployeesId);
+                            List<UsedRepairType> allUsedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().ToList();
+                            List<UsedRepairType> usedRepairTypes = new List<UsedRepairType>();
+                            foreach (var item in allUsedRepairTypes)
+                            {
+                                if (item.RepairId == repair.Id)
+                                    usedRepairTypes.Add(item);
+                            }
+                            foreach (var item in usedRepairTypes)
+                            {
+                                item.RepairType = _repairTypeRepository.GetRepairType(item.RepairTypeId);
+                            }
+                            repairEntity.RepairType = usedRepairTypes;
+                            List<UsedParts> allUsedParts = _usedPartsRepository.GetAllUsedParts().ToList();
+                            List<UsedParts> usedParts = new List<UsedParts>();
+                            foreach (var item in allUsedParts)
+                            {
+                                if (item.RepairId == repair.Id)
+                                    usedParts.Add(item);
+                            }
+                            foreach (var item in allUsedParts)
+                            {
+                                item.Part = _partsRepository.GetParts(item.PartId);
+                            }
+                            repairEntity.UsedPartsList = usedParts;
+
+                            model.RepairList.Add(repairEntity);
+                        }
+                }
+
+                return View(model);
+            }
+            return View(model);
+        }
+
     }
 }
