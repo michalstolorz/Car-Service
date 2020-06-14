@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CarServices.Controllers
 {
-    [AllowAnonymous]
+    
     public class PartsController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -32,6 +32,7 @@ namespace CarServices.Controllers
             _partsRepository = partsRepository;
         }
 
+        //[Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             return View();
@@ -40,10 +41,11 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult AvailiableParts()
         {
-            var carParts = _partsRepository.GetAllParts();
-            var viewModel = new PartsAvailiablePartsViewModel()
+            List<Parts> carParts = _partsRepository.GetAllParts().ToList();
+            var sortedQuantityDescendingPartList = carParts.OrderBy(p => p.Quantity);
+            PartsAvailiablePartsViewModel viewModel = new PartsAvailiablePartsViewModel()
             {
-                PartsList = carParts
+                PartsList = sortedQuantityDescendingPartList.ToList()
             };
             return View(viewModel);
         }

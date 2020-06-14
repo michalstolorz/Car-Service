@@ -66,6 +66,45 @@ namespace CarServices.Controllers
         }
 
         [HttpGet]
+        public IActionResult ListRepairsInProgress()
+        {
+            //listRepairs.RemoveAll(l => l.Status != "Repair in progress");
+            //model.repairs.RemoveAll(l => l.Status != "Repair in progress");
+
+            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => r.Status == "Repair in progress").ToList();
+            List<UsedRepairType> listUsedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().ToList();
+            foreach (var l in listRepairs)
+            {
+                Car car = _carRepository.GetCar(l.CarId);
+                CarModel carModel = _carModelRepository.GetCarModel(car.ModelId);
+                l.Car.CarModel = carModel;
+                CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
+                l.Car.CarModel.CarBrand = carBrand;
+                if (l.EmployeesId == null)
+                    l.EmployeesId = 0;
+                else
+                {
+                    Employees employee = _employeesRepository.GetEmployees(l.EmployeesId ?? 1);
+                    l.Employees = employee;
+                }
+            }
+            foreach (var l in listUsedRepairTypes)
+            {
+                RepairType repairType = _repairTypeRepository.GetRepairType(l.RepairTypeId);
+                repairType.Name += "\n";
+                l.RepairType = repairType;
+            }
+            //var repairListWaitingForAssignFirst = listRepairs.OrderBy(l => l.EmployeesId);
+            //listRepairs.RemoveAll(l => l.Status != "Repair in progress");
+            ListRepairAssignViewModel model = new ListRepairAssignViewModel()
+            {
+                repairs = listRepairs,
+                usedRepairTypes = listUsedRepairTypes
+            };
+            return View(model);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ListEmployees()
         {
             IEnumerable<Employees> listEmployees = _employeesRepository.GetAllEmployees().ToList();

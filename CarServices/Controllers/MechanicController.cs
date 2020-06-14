@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace CarServices.Controllers
 {
+    //[Authorize(Roles = "Mechanic")]
     public class MechanicController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -54,7 +55,6 @@ namespace CarServices.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Policy = "Admin")]
         public IActionResult ListRepairAssign()
         {
             List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => r.Status != "Complete").ToList(); 
@@ -80,16 +80,16 @@ namespace CarServices.Controllers
                 repairType.Name += "\n";
                 l.RepairType = repairType;
             }
+            var repairListWaitingForAssignFirst = listRepairs.OrderBy(l => l.EmployeesId);
             ListRepairAssignViewModel model = new ListRepairAssignViewModel()
             {
-                repairs = listRepairs,
+                repairs = repairListWaitingForAssignFirst.ToList(),
                 usedRepairTypes = listUsedRepairTypes
             };
             return View(model);
         }
 
         //[HttpPost]
-        //[Authorize(Roles = "Admin, Mechanic")]
         public IActionResult AssignRepair(int id)
         {
             string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;

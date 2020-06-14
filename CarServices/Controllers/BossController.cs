@@ -264,6 +264,7 @@ namespace CarServices.Controllers
             document.Close(true);
 
             repair.Status = "Complete";
+            repair.DateOfCompletion = DateTime.Now;
             _repairRepository.Update(repair);
 
             return RedirectToAction("index", "home");

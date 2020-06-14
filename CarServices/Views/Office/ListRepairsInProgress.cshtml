@@ -1,0 +1,41 @@
+﻿@model ListRepairAssignViewModel
+@{
+    ViewData["Title"] = "ListRepairsInProgress";
+}
+
+<h1>ListRepairsInProgress</h1>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Car</th>
+            <th scope="col">VIN</th>
+            <th scope="col">Production Year</th>
+            <th scope="col">Status</th>
+            <th scope="col">Type</th>
+            <th scope="col">Assign Employee</th>
+    </thead>
+    <tbody>
+        @foreach (var mr in Model.repairs)
+        {
+            <tr>
+                <th scope="row">@mr.Id</th>
+                <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
+                <td>@mr.Car.VIN</td>
+                <td>@mr.Car.ProductionYear</td>
+                <td>@mr.Status</td>
+                <td>
+                    @foreach (var mu in Model.usedRepairTypes)
+                    {
+                        if (mr.Id == mu.RepairId)
+                        {
+                            @mu.RepairType.Name
+                        }
+                    }
+                </td>
+                <td>@mr.Employees.Name @mr.Employees.Surname</td>
+            </tr>
+        }
+    </tbody>
+</table>
