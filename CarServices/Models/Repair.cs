@@ -24,7 +24,11 @@ namespace CarServices.Models
         [ForeignKey("InvoiceId")]
         public Invoice Invoice { get; set; }
         public int? InvoiceId { get; set; }
-        public string Status { get; set; }
+        [ForeignKey("StatusId")]
+        public RepairStatus RepairStatus { get; set; }
+        public int? StatusId { get; set; }
+        public string Description { get; set; }
         public double? Cost { get; set; }
+        public DateTime? DateOfCompletion { get; set; }
     }
 }

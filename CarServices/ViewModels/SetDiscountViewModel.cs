@@ -11,11 +11,12 @@ namespace CarServices.ViewModels
     public class SetDiscountViewModel
     {
         [Required]
+        [Display(Name = "Customer")]
         public int Id { get; set; }
         public string Name { get; set; }
         [Required]
         [Range(0, 99, ErrorMessage = "Wrong value. Discount is from 0-99%")]
         public int Discount { get; set; }
-        public List<Customer> CustomerList{ get; set; }
+        public List<SelectListItem> CustomersList{ get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace CarServices.ViewModels
         [Display(Name ="Customer")]
         public int ChoosenCustomerId { get; set; }
         public List<CarBrand> CarBrands { get; set; }
-        public List<Customer> CustomersList { get; set; }
+        public List<SelectListItem> CustomersList { get; set; }
         public SelectList FilteredModels { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿@inject SignInManager<IdentityUser> signInManager;
-@model String
+@model List<String>
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -12,8 +12,7 @@
 
 @if (signInManager.IsSignedIn(User) && User.IsInRole("OfficeWorker"))
 {
-        <body onpageshow="return confirm('Missing parts from warehouse: @Model')">
+    <body onpageshow="return confirm('Missing parts from warehouse: @Model[0] \nRepairs to client decision: @Model[1]')">
 
-        </body>
+    </body>
 }
-

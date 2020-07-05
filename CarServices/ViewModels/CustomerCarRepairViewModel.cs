@@ -1,5 +1,4 @@
 ﻿using CarServices.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace CarServices.ViewModels
 {
-    public class ChangeStatusViewModel
+    public class CustomerCarRepairViewModel
     {
-        public int Id { get; set; }
-        public List<RepairStatus> StatusList { get; set; }
-        [Display(Name = "Status")]
-        public int ChoosenStatusId { get; set; }
+        public Customer Customer { get; set; }
+        public Repair Repair { get; set; }
+        public List<UsedRepairType> UsedRepairTypes { get; set; }
+        [Required]
         public string Description { get; set; }
+        public int RepairId { get; set; }
     }
 }

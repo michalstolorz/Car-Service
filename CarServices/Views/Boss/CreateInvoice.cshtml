@@ -1,0 +1,44 @@
+﻿@model CreateInvoiceViewModel
+@{
+    ViewData["Title"] = "CreateInvoice";
+}
+
+<h1>CreateInvoice</h1>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Car</th>
+            <th scope="col">VIN</th>
+            <th scope="col">Production Year</th>
+            <th scope="col">Cost</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Type</th>
+    </thead>
+    <tbody>
+        @foreach (var mr in Model.repairs)
+        {
+            <tr>
+                <th scope="row">@mr.Id</th>
+                <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
+                <td>@mr.Car.VIN</td>
+                <td>@mr.Car.ProductionYear</td>
+                <td>@mr.Cost</td>
+                <td>@mr.Car.Customer.Name @mr.Car.Customer.Surname</td>
+                <td >
+                    @foreach (var mu in Model.usedRepairTypes)
+                    {
+                        if (mr.Id == mu.RepairId)
+                        {
+                            @mu.RepairType.Name
+                            <p></p>
+                        }
+                    }
+                </td>
+                <td><a class="btn btn-primary" role="button" asp-controller="Boss" asp-action="CreateInvoicePDF" asp-route-id="@mr.Id">Create Document</a></td>
+            </tr>
+        }
+
+    </tbody>
+</table>

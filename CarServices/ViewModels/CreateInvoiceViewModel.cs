@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CarServices.ViewModels
 {
-    public class ListRepairAssignViewModel
+    public class CreateInvoiceViewModel
     {
-        public List<Repair> Repairs { get; set; }
-        public List<UsedRepairType> UsedRepairTypes { get; set; }
+        public List<Repair> repairs { get; set; }
+        public List<UsedRepairType> usedRepairTypes { get; set; }
     }
 }

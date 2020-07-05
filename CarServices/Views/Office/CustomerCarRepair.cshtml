@@ -1,0 +1,90 @@
+﻿@model CustomerCarRepairViewModel
+@{
+    ViewData["Title"] = "CustomerCarRepair";
+}
+
+<h1>CustomerCarRepair</h1>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Car</th>
+            <th scope="col">VIN</th>
+            <th scope="col">Production Year</th>
+            <th scope="col">Type</th>
+            <th scope="col">Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th scope="row">@Model.Repair.Id</th>
+            <td>@Model.Repair.Car.CarModel.CarBrand.Name @Model.Repair.Car.CarModel.Name</td>
+            <td>@Model.Repair.Car.VIN</td>
+            <td>@Model.Repair.Car.ProductionYear</td>
+            <td>
+                @foreach (var mu in Model.UsedRepairTypes)
+                {
+                    @mu.RepairType.Name
+                    <p></p>
+                }
+            </td>
+            <td>@Model.Repair.Description</td>
+        </tr>
+    </tbody>
+</table>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Surname</th>
+            <th scope="col">Telephone Number</th>
+            <th scope="col">Email</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th scope="row">@Model.Customer.Id</th>
+            <td>@Model.Customer.Name</td>
+            <td>@Model.Customer.Surname</td>
+            <td>@Model.Customer.TelephoneNumber</td>
+            <td>@Model.Customer.Email</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<form asp-action="CustomerCarRepairCustomerAgree" method="post" class="mt-3">
+    @Html.HiddenFor(model => model.RepairId)
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary" style="width:auto">
+                Customer Agree
+            </button>
+        </div>
+    </div>
+</form>
+
+<br />
+
+<form asp-action="CustomerCarRepairCustomerDisagree" method="post" class="mt-3">
+    <div asp-validation-summary="All" class="text-danger">
+    </div>
+    <div class="form-group row">
+        <label asp-for="Description" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Description" class="form-control" placeholder="Description">
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    </div>
+    @Html.HiddenFor(model => model.RepairId)
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary" style="width:auto">
+                Customer Disagree
+            </button>
+        </div>
+    </div>
+</form>

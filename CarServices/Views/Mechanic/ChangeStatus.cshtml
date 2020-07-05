@@ -9,12 +9,18 @@
 <form asp-action="ChangeStatus" method="post" class="mt-3">
     <div asp-validation-summary="All" class="text-danger">
     </div>
-    
     <div class="form-group row">
-        <label asp-for="Status" class="col-sm-2 col-form-label"></label>
+        <label asp-for="ChoosenStatusId" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
-            <input asp-for="Status" class="form-control" placeholder="Status">
-            <span asp-validation-for="Status" class="text-danger"></span>
+            @Html.DropDownListFor(m => m.ChoosenStatusId, new SelectList(Model.StatusList, "Id", "Name"), "Select new status")
+            <span asp-validation-for="ChoosenStatusId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="Description" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Description" class="form-control" placeholder="Description">
+            <span asp-validation-for="Description" class="text-danger"></span>
         </div>
     </div>
     @Html.HiddenFor(model => model.Id)

@@ -11,7 +11,7 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
-            <div class="container">
+            <div class="container" style="max-width: 1440px">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CarServices</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -19,22 +19,16 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex">
                     <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Parts" asp-action="Index">Parts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListEmployees">Employees List</a>
-                        </li>
-                        @if (signInManager.IsSignedIn(User) && User.IsInRole("OfficeWorker"))
+                        @if (signInManager.IsSignedIn(User) && (User.IsInRole("OfficeWorker") || User.IsInRole("Boss") || User.IsInRole("Admin")))
                         {
                             <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="CreateOrder">Order Parts</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListCustomers">Customers List</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Parts" asp-action="Index">Parts</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="AddCar">Add Car</a>
@@ -49,10 +43,16 @@
                                 <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="SetDiscount">Set Discount</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="CreateOrder">Create order</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListEmployees">Employees List</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="account" asp-action="register">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Office" asp-action="ListRepairsInProgress">Repairs</a>
                             </li>
                         }
-                        @if (signInManager.IsSignedIn(User) && User.IsInRole("Mechanic"))
+                        @if (signInManager.IsSignedIn(User) && (User.IsInRole("Mechanic") || User.IsInRole("Admin")))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Mechanic" asp-action="ListRepairAssign">Assign Repair</a>
@@ -60,7 +60,15 @@
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Mechanic" asp-action="ListRepairAssignedToMechanic">Your Repairs</a>
                             </li>
-
+                        }
+                        @if (signInManager.IsSignedIn(User) && (User.IsInRole("Boss") || User.IsInRole("Admin")))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Boss" asp-action="CreateInvoice">Invoice</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Boss" asp-action="CreateReport">Create Report</a>
+                            </li>
                         }
                         @if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {
@@ -83,9 +91,6 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="account" asp-action="register">Register</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link" asp-controller="account" asp-action="login">Login</a>
                             </li>
                         }
@@ -94,7 +99,7 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container" style="max-width: 1440px">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

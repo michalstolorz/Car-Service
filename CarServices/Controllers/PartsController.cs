@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CarServices.Controllers
 {
-    [AllowAnonymous]
+    
     public class PartsController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -31,29 +31,35 @@ namespace CarServices.Controllers
             _httpContextAccessor = httpContextAccessor;
             _partsRepository = partsRepository;
         }
-        // GET: /<controller>/
+
+        //[Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             return View();
         }
 
+        [HttpGet]
         public IActionResult AvailiableParts()
         {
-            var carParts = _partsRepository.GetAllParts();
-            var viewModel = new PartsAvailiablePartsViewModel()
+            List<Parts> carParts = _partsRepository.GetAllParts().ToList();
+            var sortedQuantityDescendingPartList = carParts.OrderBy(p => p.Quantity);
+            PartsAvailiablePartsViewModel viewModel = new PartsAvailiablePartsViewModel()
             {
-                PartsList = carParts
+                PartsList = sortedQuantityDescendingPartList.ToList()
             };
             return View(viewModel);
         }
+
         public IActionResult OrderingParts()
         {
             return View();
         }
+
         public IActionResult ReportingMissingParts()
         {
             return View();
         }
+
         [HttpGet]
         public IActionResult SupplyParts()
         {
@@ -87,16 +93,38 @@ namespace CarServices.Controllers
         [HttpPost]
         public IActionResult AddParts(AddPartsViewModel addPartsViewModel)
         {
+
             if (ModelState.IsValid)
             {
-                Parts parts = new Parts
+                if (addPartsViewModel.PartPrice < 0.0)
                 {
-                    Name = addPartsViewModel.Name,
-                    Quantity = addPartsViewModel.Quantity,
-                    PartPrice = addPartsViewModel.PartPrice
-                };
-                _partsRepository.Add(parts);
-                return RedirectToAction("AvailiableParts", "Parts");
+                    ModelState.AddModelError(string.Empty, "Price of the part cannot be negative");
+                    return View(addPartsViewModel);
+                }
+
+                //List<Parts> PartsList = _partsRepository.GetAllParts().ToList();
+                //foreach (var element in PartsList)
+                //{
+                //    if (element.Name.Equals(addPartsViewModel.Name))
+                //    {
+                //        ModelState.AddModelError(string.Empty, "Parts with this name already exists ");
+                //        return View(addPartsViewModel);
+                //    }
+                //}
+
+                List<Parts> PartsList = _partsRepository.GetAllParts().Where(p => p.Name == addPartsViewModel.Name).ToList();
+                if (PartsList.Count == 0)
+                {
+                    Parts parts = new Parts
+                    {
+                        Name = addPartsViewModel.Name,
+                        Quantity = addPartsViewModel.Quantity,
+                        PartPrice = addPartsViewModel.PartPrice
+                    };
+                    _partsRepository.Add(parts);
+                    return RedirectToAction("AvailiableParts", "Parts");
+                }
+                ModelState.AddModelError(string.Empty, "Parts with this name already exists ");
             }
             return View(addPartsViewModel);
         }

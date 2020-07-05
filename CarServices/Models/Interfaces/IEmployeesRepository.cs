@@ -7,7 +7,7 @@ namespace CarServices.Models
 {
     public interface IEmployeesRepository
     {
-        Employees GetEmployees(int Id);
+        Employees GetEmployees(int? Id);
         Employees GetEmployeesByUserId(string userId);
         IEnumerable<Employees> GetAllEmployees();
         Employees Add(Employees employees);
