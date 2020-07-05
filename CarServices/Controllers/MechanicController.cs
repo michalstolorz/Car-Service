@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace CarServices.Controllers
 {
-    //[Authorize(Roles = "Mechanic")]
+    //[Authorize(Roles = "Mechanic, Admin")]
     public class MechanicController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -27,6 +27,7 @@ namespace CarServices.Controllers
         private readonly ILocalDataRepository _localDataRepository;
         private readonly IEmployeesRepository _employeesRepository;
         private readonly IRepairTypeRepository _repairTypeRepository;
+        private readonly IRepairStatusRepository _repairStatusRepository;
         private readonly IRepairRepository _repairRepository;
         private readonly IPartsRepository _partsRepository;
         private readonly IUsedPartsRepository _usedPartsRepository;
@@ -36,7 +37,8 @@ namespace CarServices.Controllers
             ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, ILocalDataRepository localDataRepository,
             IEmployeesRepository employeesRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager,
             IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IHttpContextAccessor httpContextAccessor,
-            IPartsRepository partsRepository, IUsedPartsRepository usedPartsRepository, IUsedRepairTypeRepository usedRepairTypeRepository)
+            IPartsRepository partsRepository, IUsedPartsRepository usedPartsRepository, IUsedRepairTypeRepository usedRepairTypeRepository,
+            IRepairStatusRepository repairStatusRepository)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -48,6 +50,7 @@ namespace CarServices.Controllers
             _localDataRepository = localDataRepository;
             _employeesRepository = employeesRepository;
             _repairTypeRepository = repairTypeRepository;
+            _repairStatusRepository = repairStatusRepository;
             _repairRepository = repairRepository;
             _partsRepository = partsRepository;
             _usedPartsRepository = usedPartsRepository;
@@ -57,7 +60,9 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult ListRepairAssign()
         {
-            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => r.Status != "Complete").ToList(); 
+            const int completeStatusId = 10;
+            const int repairInProgressStatusId = 8;
+            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => r.StatusId != completeStatusId).ToList(); 
             List<UsedRepairType> listUsedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().ToList();
             foreach (var l in listRepairs)
             {
@@ -66,6 +71,8 @@ namespace CarServices.Controllers
                 l.Car.CarModel = carModel;
                 CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
                 l.Car.CarModel.CarBrand = carBrand;
+                RepairStatus repairStatus = _repairStatusRepository.GetRepairStatus(l.StatusId ?? repairInProgressStatusId);
+                l.RepairStatus = repairStatus;
                 if (l.EmployeesId == null)
                     l.EmployeesId = 0;
                 else
@@ -77,14 +84,14 @@ namespace CarServices.Controllers
             foreach (var l in listUsedRepairTypes)
             {
                 RepairType repairType = _repairTypeRepository.GetRepairType(l.RepairTypeId);
-                repairType.Name += "\n";
+                //repairType.Name += "\n";
                 l.RepairType = repairType;
             }
             var repairListWaitingForAssignFirst = listRepairs.OrderBy(l => l.EmployeesId);
             ListRepairAssignViewModel model = new ListRepairAssignViewModel()
             {
-                repairs = repairListWaitingForAssignFirst.ToList(),
-                usedRepairTypes = listUsedRepairTypes
+                Repairs = repairListWaitingForAssignFirst.ToList(),
+                UsedRepairTypes = listUsedRepairTypes
             };
             return View(model);
         }
@@ -95,8 +102,9 @@ namespace CarServices.Controllers
             string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             Employees employees = _employeesRepository.GetAllEmployees().Where(u => u.UserId == userId).FirstOrDefault();
 
+            const int repairInProgressStatusId = 8;
             Repair repair = _repairRepository.GetRepair(id);
-            repair.Status = "Assign to " + employees.Name + " " + employees.Surname;
+            repair.StatusId = repairInProgressStatusId;
             repair.EmployeesId = employees.Id;
 
             _repairRepository.Update(repair);
@@ -106,13 +114,17 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult ListRepairAssignedToMechanic()
         {
+            const int completeStatusId = 10;
+            const int repairInProgressStatusId = 8;
             string user = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             Employees employees = _employeesRepository.GetEmployeesByUserId(user);
-            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => r.EmployeesId == employees.Id).ToList();
+            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => (r.EmployeesId == employees.Id) && (r.StatusId != completeStatusId)).ToList();
             List<UsedRepairType> listUsedRepairTypes = new List<UsedRepairType>();
             foreach (var l in listRepairs)
             {
                 listUsedRepairTypes.AddRange(_usedRepairTypeRepository.GetUsedRepairTypeByRepairId(l.Id));
+                RepairStatus repairStatus = _repairStatusRepository.GetRepairStatus(l.StatusId ?? repairInProgressStatusId);
+                l.RepairStatus = repairStatus;
             }
             foreach (var l in listUsedRepairTypes)
             {
@@ -123,7 +135,7 @@ namespace CarServices.Controllers
                 CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
                 l.Repair.Car.CarModel.CarBrand = carBrand;
                 RepairType repairType = _repairTypeRepository.GetRepairType(l.RepairTypeId);
-                repairType.Name += "\n";
+                //repairType.Name += "\n";
                 l.RepairType = repairType;
             }
             ListRepairAssignedToMechanicViewModel model = new ListRepairAssignedToMechanicViewModel()
@@ -228,7 +240,11 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult ChangeStatus(int id)
         {
+            const int completeStatusId = 10;
             ChangeStatusViewModel model = new ChangeStatusViewModel() { Id = id };
+            model.StatusList = _repairStatusRepository.GetAllRepairStatus().ToList();
+            RepairStatus repairStatus = _repairStatusRepository.GetRepairStatus(completeStatusId);
+            model.StatusList.Remove(repairStatus);
             return View(model);
         }
 
@@ -238,7 +254,8 @@ namespace CarServices.Controllers
             if (ModelState.IsValid)
             {
                 Repair repair = _repairRepository.GetRepair(model.Id);
-                repair.Status = model.Status;
+                repair.StatusId = model.ChoosenStatusId;
+                repair.Description += model.Description + ". ";
                 _repairRepository.Update(repair);
                 return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
             }

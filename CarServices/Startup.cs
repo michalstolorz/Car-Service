@@ -46,13 +46,7 @@ namespace CarServices
             }).AddEntityFrameworkStores<AppDbContext>().AddRoles<IdentityRole>();
             services.AddControllersWithViews();
             services.AddRazorPages();
-            services.AddMvc(
-            //    config =>
-            //{
-            //    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-            //    config.Filters.Add(new AuthorizeFilter(policy));
-            //}
-            ).AddXmlSerializerFormatters();
+            services.AddMvc().AddXmlSerializerFormatters();
 
             services.AddAuthorization(options =>
             {
@@ -70,6 +64,7 @@ namespace CarServices
             services.AddScoped<IOrderDetailsRepository, SQLOrderDetailsRepository>();
             services.AddScoped<IPartsRepository, SQLPartsRepository>();
             services.AddScoped<IRepairRepository, SQLRepairRepository>();
+            services.AddScoped<IRepairStatusRepository, SQLRepairStatusRepository>();
             services.AddScoped<IRepairTypeRepository, SQLRepairTypeRepository>();
             services.AddScoped<IUsedPartsRepository, SQLUsedPartsRepository>();
             services.AddScoped<IUsedRepairTypeRepository, SQLUsedRepairTypeRepository>();

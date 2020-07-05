@@ -50,36 +50,32 @@
                     <td>@m.Employee.Name</td>
                     <td>@m.Employee.Surname</td>
                     <td>
-                        <ul>
-                            @foreach (var r in @m.RepairType)
-                            {
-                                <li>@r.RepairType.Name</li>
-                            }
-                        </ul>
+                        @foreach (var r in @m.RepairType)
+                        {
+                            @r.RepairType.Name
+                            <p></p>
+                        }
                     </td>
                     <td>
-                        <ul>
-                            @foreach (var p in @m.UsedPartsList)
-                            {
-                                <li>@p.Part.Name</li>
-                            }
-                        </ul>
+                        @foreach (var p in @m.UsedPartsList)
+                        {
+                            @p.Part.Name
+                            <p></p>
+                        }
                     </td>
                     <td>
-                        <ul>
-                            @foreach (var p in @m.UsedPartsList)
-                            {
-                                <li>@p.Part.PartPrice</li>
-                            }
-                        </ul>
+                        @foreach (var p in @m.UsedPartsList)
+                        {
+                            @p.Part.PartPrice
+                            <p></p>
+                        }
                     </td>
                     <td>
-                        <ul>
-                            @foreach (var x in @m.UsedPartsList)
-                            {
-                                <li>@x.Quantity</li>
-                            }
-                        </ul>
+                        @foreach (var x in @m.UsedPartsList)
+                        {
+                            @x.Quantity
+                            <p></p>
+                        }
                     </td>
                 </tr>
                 i++;

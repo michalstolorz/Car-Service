@@ -21,6 +21,16 @@
     <Compile Remove="Migrations\20200525110719_UsedRepairTypeADD.Designer.cs" />
     <Compile Remove="Migrations\20200530161109_RepairDateOfCompletion.cs" />
     <Compile Remove="Migrations\20200530161109_RepairDateOfCompletion.Designer.cs" />
+    <Compile Remove="Migrations\20200615094917_RepairStautsADD.cs" />
+    <Compile Remove="Migrations\20200615094917_RepairStautsADD.Designer.cs" />
+    <Compile Remove="Migrations\20200615105010_RepairStatusForeignKey.cs" />
+    <Compile Remove="Migrations\20200615105010_RepairStatusForeignKey.Designer.cs" />
+    <Compile Remove="Migrations\20200615105543_RepairStatusForeignKey.cs" />
+    <Compile Remove="Migrations\20200615105543_RepairStatusForeignKey.Designer.cs" />
+    <Compile Remove="Migrations\20200615110639_RepairStatusForeignKey.cs" />
+    <Compile Remove="Migrations\20200615110639_RepairStatusForeignKey.Designer.cs" />
+    <Compile Remove="Migrations\20200615113032_StatusIdNotNULL.cs" />
+    <Compile Remove="Migrations\20200615113032_StatusIdNotNULL.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

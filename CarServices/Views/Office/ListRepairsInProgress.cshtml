@@ -15,27 +15,55 @@
             <th scope="col">Status</th>
             <th scope="col">Type</th>
             <th scope="col">Assign Employee</th>
+        </tr>
     </thead>
     <tbody>
-        @foreach (var mr in Model.repairs)
+        @foreach (var mr in Model.Repairs)
         {
-            <tr>
-                <th scope="row">@mr.Id</th>
-                <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
-                <td>@mr.Car.VIN</td>
-                <td>@mr.Car.ProductionYear</td>
-                <td>@mr.Status</td>
-                <td>
-                    @foreach (var mu in Model.usedRepairTypes)
-                    {
-                        if (mr.Id == mu.RepairId)
+            @if (mr.StatusId == 9)
+            {
+                <tr style="background-color: yellow;">
+                    <th scope="row">@mr.Id</th>
+                    <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
+                    <td>@mr.Car.VIN</td>
+                    <td>@mr.Car.ProductionYear</td>
+                    <td>@mr.RepairStatus.Name</td>
+                    <td>
+                        @foreach (var mu in Model.UsedRepairTypes)
                         {
-                            @mu.RepairType.Name
+                            if (mr.Id == mu.RepairId)
+                            {
+                                @mu.RepairType.Name
+                                <p></p>
+                            }
                         }
-                    }
-                </td>
-                <td>@mr.Employees.Name @mr.Employees.Surname</td>
-            </tr>
+                    </td>
+                    <td>@mr.Employees.Name @mr.Employees.Surname</td>
+                    <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="CustomerCarRepair" asp-route-id="@mr.Id">Client</a></td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <th scope="row">@mr.Id</th>
+                    <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
+                    <td>@mr.Car.VIN</td>
+                    <td>@mr.Car.ProductionYear</td>
+                    <td>@mr.RepairStatus.Name</td>
+                    <td>
+                        @foreach (var mu in Model.UsedRepairTypes)
+                        {
+                            if (mr.Id == mu.RepairId)
+                            {
+                                @mu.RepairType.Name
+                                <p></p>
+                            }
+                        }
+                    </td>
+                    <td>@mr.Employees.Name @mr.Employees.Surname</td>
+                    <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="CustomerCarRepair" asp-route-id="@mr.Id">Client</a></td>
+                </tr>
+            }
         }
     </tbody>
 </table>

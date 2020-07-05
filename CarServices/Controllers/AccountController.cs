@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CarServices.Controllers
 {
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin")]
     public class AccountController : Controller
     {
         private readonly UserManager<IdentityUser> userManager;
@@ -61,6 +61,7 @@ namespace CarServices.Controllers
 
             return View(model);
         }
+
         public IActionResult FillEmployee(RegisterViewModel registerViewModel)
         {
             Employees employees = new Employees
@@ -74,6 +75,7 @@ namespace CarServices.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();
@@ -81,12 +83,14 @@ namespace CarServices.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl)
         {
             if (ModelState.IsValid)

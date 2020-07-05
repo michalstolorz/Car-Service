@@ -4,14 +4,16 @@ using CarServices.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CarServices.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200615111425_StatusIdNULL")]
+    partial class StatusIdNULL
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -258,8 +260,6 @@ namespace CarServices.Migrations
                     b.HasIndex("EmployeesId");
 
                     b.HasIndex("InvoiceId");
-
-                    b.HasIndex("StatusId");
 
                     b.ToTable("Repair");
                 });
@@ -621,10 +621,6 @@ namespace CarServices.Migrations
                     b.HasOne("CarServices.Models.Invoice", "Invoice")
                         .WithMany()
                         .HasForeignKey("InvoiceId");
-
-                    b.HasOne("CarServices.Models.RepairStatus", "RepairStatus")
-                        .WithMany()
-                        .HasForeignKey("StatusId");
                 });
 
             modelBuilder.Entity("CarServices.Models.UsedParts", b =>

@@ -19,6 +19,9 @@ namespace CarServices.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPartsRepository _partsRepository;
+        private readonly IRepairRepository _repairRepository;
+        private readonly ICarBrandRepository _carBrandRepository;
+        private readonly ICarModelRepository _carModelRepository;
         private readonly ILogger<HomeController> _logger;
         private readonly ICarRepository _carRepository;
         private readonly ICustomerRepository _customerRepository;
@@ -26,27 +29,45 @@ namespace CarServices.Controllers
         private readonly UserManager<IdentityUser> _userManager;
 
         public HomeController(ILogger<HomeController> logger, ICarRepository carRepository, ICustomerRepository customerRepository, 
-            IHttpContextAccessor httpContextAccessor, IPartsRepository partsRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+            IHttpContextAccessor httpContextAccessor, IPartsRepository partsRepository, IRepairRepository repairRepository,
+            ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _logger = logger;
             _carRepository = carRepository;
             _customerRepository = customerRepository;
             _httpContextAccessor = httpContextAccessor;
             _partsRepository = partsRepository;
+            _repairRepository = repairRepository;
+            _carBrandRepository = carBrandRepository;
+            _carModelRepository = carModelRepository;
             _userManager = userManager;
             _roleManager = roleManager;
         }
 
         public IActionResult Index()
         {
-            List<Parts> model = new List<Parts>();
-            model = _partsRepository.GetAllParts().Where(p => p.Quantity == 0).ToList();
-            string parts = "";
-            foreach(var m in model)
+            List<string> model = new List<string>();
+            List<Parts> parts = _partsRepository.GetAllParts().Where(p => p.Quantity == 0).ToList();
+            string modelString = "";
+            foreach(var m in parts)
             {
-                parts += @"\n" + m.Name;
+                modelString += @"\n" + m.Name;
             }
-            return View("index", parts);
+            model.Add(modelString);
+            modelString = "";
+            List<Repair> repairs = _repairRepository.GetAllRepair().Where(r => r.StatusId == 9).ToList();
+            repairs = repairs.GroupBy(r => r.CarId).Select(g => g.First()).ToList();
+            foreach(var m in repairs)
+            {
+                Car car = _carRepository.GetCar(m.CarId);
+                CarModel carModel = _carModelRepository.GetCarModel(car.ModelId);
+                car.CarModel = carModel;
+                CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
+                car.CarModel.CarBrand = carBrand;
+                modelString += @"\n" + car.CarModel.CarBrand.Name + " " + car.CarModel.Name + " " + car.VIN;
+            }
+            model.Add(modelString);
+            return View("index", model);
         }
 
         public async Task<IActionResult> Privacy()

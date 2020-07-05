@@ -8,7 +8,7 @@ namespace CarServices.ViewModels
 {
     public class ListRepairAssignViewModel
     {
-        public List<Repair> repairs { get; set; }
-        public List<UsedRepairType> usedRepairTypes { get; set; }
+        public List<Repair> Repairs { get; set; }
+        public List<UsedRepairType> UsedRepairTypes { get; set; }
     }
 }

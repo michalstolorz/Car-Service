@@ -19,9 +19,11 @@ using System.Xml;
 using System.Text;
 using System.Collections;
 using CarServices.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CarServices.Controllers
 {
+    //[Authorize(Roles = "Boss, Admin")]
     public class BossController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -68,7 +70,8 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult CreateInvoice()
         {
-            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(l => (l.Cost != null) && (l.Status != "Complete")).ToList();
+            const int completeStatusId = 10;
+            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(l => (l.Cost != null) && (l.StatusId != completeStatusId)).ToList();
             List<UsedRepairType> listUsedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().ToList();
             foreach (var l in listRepairs)
             {
@@ -147,12 +150,12 @@ namespace CarServices.Controllers
             graphics.DrawString("Amount", arialRegularFont, whiteBrush, headerAmountBounds, new PdfStringFormat(PdfTextAlignment.Center, PdfVerticalAlignment.Middle));
 
             Repair repair = _repairRepository.GetRepair(Id);
-            Car car = _carRepository.GetCar(repair.Id);
-            Customer customer = _customerRepository.GetCustomer(repair.Id);
+            Car car = _carRepository.GetCar(repair.CarId);
+            repair.Car = car;
+            Customer customer = _customerRepository.GetCustomer(repair.Car.CustomerId);
+            repair.Car.Customer = customer;
             List<UsedRepairType> usedRepairTypesList = _usedRepairTypeRepository.GetAllUsedRepairType().Where(u => u.RepairId == Id).ToList();
             List<UsedParts> usedPartsList = _usedPartsRepository.GetAllUsedParts().Where(u => u.RepairId == Id).ToList();
-            repair.Car = car;
-            repair.Car.Customer = customer;
             foreach (var u in usedRepairTypesList)
             {
                 u.Repair = repair;
@@ -190,14 +193,17 @@ namespace CarServices.Controllers
             double summaryPartsPrice = 0;
             foreach (var u in usedPartsList)
             {
-                model.Add(new CreateInvoicePDFViewModel { Id = i, 
-                    Name = u.Part.Name, 
+                model.Add(new CreateInvoicePDFViewModel
+                {
+                    Id = i,
+                    Name = u.Part.Name,
                     Quantity = u.Quantity,
-                    NetPrice = u.Part.PartPrice * TaxNetValueValue, 
-                    NetValue = u.Part.PartPrice * TaxNetValueValue * u.Quantity, 
-                    Tax = (VATValue * 100).ToString() + "%", 
-                    TaxValue = u.Part.PartPrice * VATValue * u.Quantity, 
-                    SummaryPrice = u.Part.PartPrice * u.Quantity });
+                    NetPrice = u.Part.PartPrice * TaxNetValueValue,
+                    NetValue = u.Part.PartPrice * TaxNetValueValue * u.Quantity,
+                    Tax = (VATValue * 100).ToString() + "%",
+                    TaxValue = u.Part.PartPrice * VATValue * u.Quantity,
+                    SummaryPrice = u.Part.PartPrice * u.Quantity
+                });
 
                 summaryPartsPrice += u.Part.PartPrice * u.Quantity;
                 i++;
@@ -206,15 +212,19 @@ namespace CarServices.Controllers
             foreach (var u in usedRepairTypesList)
                 allRepairNames += u.RepairType.Name + "\n";
 
-            model.Add(new CreateInvoicePDFViewModel { Id = i, Name = allRepairNames, 
-                Quantity = 1, 
-                NetPrice = (double)(repair.Cost * TaxNetValueValue), 
-                NetValue = (double)(repair.Cost * TaxNetValueValue), 
-                Tax = (VATValue * 100).ToString() + "%", 
-                TaxValue = (double)repair.Cost * VATValue, 
-                SummaryPrice = (double)repair.Cost });
+            model.Add(new CreateInvoicePDFViewModel
+            {
+                Id = i,
+                Name = allRepairNames,
+                Quantity = 1,
+                NetPrice = (double)(repair.Cost * TaxNetValueValue),
+                NetValue = (double)(repair.Cost * TaxNetValueValue),
+                Tax = (VATValue * 100).ToString() + "%",
+                TaxValue = (double)repair.Cost * VATValue,
+                SummaryPrice = (double)repair.Cost
+            });
 
-            grid.DataSource = model; 
+            grid.DataSource = model;
 
             grid.Columns[1].Width = 150;
             grid.Style.Font = arialRegularFont;
@@ -235,7 +245,7 @@ namespace CarServices.Controllers
             textElement.Font = arialBoldFont;
             layoutResult = textElement.Draw(page, new PointF(headerAmountBounds.X - 40, layoutResult.Bounds.Bottom + lineSpace));
 
-            float totalAmount = (float)((repair.Cost + summaryPartsPrice) * ((100 - customer.Discount) / 100)); 
+            float totalAmount = (float)((repair.Cost + summaryPartsPrice) * ((100 - customer.Discount) / 100));
 
             textElement.Text = totalAmount.ToString() + "PLN";
             layoutResult = textElement.Draw(page, new PointF(layoutResult.Bounds.Right + 4, layoutResult.Bounds.Y));
@@ -263,7 +273,8 @@ namespace CarServices.Controllers
             document.Save(fileStream);
             document.Close(true);
 
-            repair.Status = "Complete";
+            const int completeStatusId = 10;
+            repair.StatusId = completeStatusId;
             repair.DateOfCompletion = DateTime.Now;
             _repairRepository.Update(repair);
 
@@ -291,8 +302,7 @@ namespace CarServices.Controllers
                 foreach (var repair in repairs)
                 {
                     if (repair.DateOfCompletion != null)
-                    
-                    if (repair.DateOfCompletion > DateTime.Now.AddDays(-model.ChoosenNumberOfDays))
+                        if (repair.DateOfCompletion > DateTime.Now.AddDays(-model.ChoosenNumberOfDays))
                         {
                             CreateReportViewModel.RepairReportEntity repairEntity = new CreateReportViewModel.RepairReportEntity();
                             repairEntity.Repair = repair;
@@ -325,7 +335,6 @@ namespace CarServices.Controllers
                             model.RepairList.Add(repairEntity);
                         }
                 }
-
                 return View(model);
             }
             return View(model);
