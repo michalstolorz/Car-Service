@@ -140,8 +140,8 @@ namespace CarServices.Controllers
             }
             ListRepairAssignedToMechanicViewModel model = new ListRepairAssignedToMechanicViewModel()
             {
-                repairs = listRepairs,
-                usedRepairTypes = listUsedRepairTypes
+                Repairs = listRepairs,
+                UsedRepairTypes = listUsedRepairTypes
             };
             return View(model);
         }
@@ -278,7 +278,7 @@ namespace CarServices.Controllers
         {
             if (ModelState.IsValid) 
             {
-                List<UsedRepairType> usedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().Where(u => (u.RepairId == model.RepairId) && (u.RepairTypeId == model.ChoosenRepairTypeId) ).ToList();
+                List<UsedRepairType> usedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().Where(u => (u.RepairId == model.RepairId) && (u.RepairTypeId == model.ChoosenRepairTypeId)).ToList();
                 if (usedRepairTypes.Count == 0)
                 {
                     UsedRepairType usedRepairType = new UsedRepairType()

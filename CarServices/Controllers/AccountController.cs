@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CarServices.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly UserManager<IdentityUser> userManager;
@@ -30,12 +30,14 @@ namespace CarServices.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
@@ -62,6 +64,7 @@ namespace CarServices.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult FillEmployee(RegisterViewModel registerViewModel)
         {
             Employees employees = new Employees
@@ -71,7 +74,7 @@ namespace CarServices.Controllers
                 Surname = registerViewModel.EmployeeSurname
             };
             _employeesRepository.Add(employees);
-            return RedirectToAction("index", "home");
+            return RedirectToAction("ListRoles", "Administration");
         }
 
         [HttpPost]
@@ -111,6 +114,41 @@ namespace CarServices.Controllers
                 }
 
                 ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return RedirectToAction("Login");
+                }
+
+                var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View();
+                }
+
+                await signInManager.RefreshSignInAsync(user);
+                return RedirectToAction("index", "home");
             }
 
             return View(model);

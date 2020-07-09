@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Car>
+@{
+    ViewData["Title"] = "ListCars";
+}
+
+<h1>ListCars</h1>
+
+<div>
+    <a class="btn btn-primary" role="button" asp-controller="Office" asp-action="AddCar">Add new car</a>
+</div>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Car</th>
+            <th scope="col">VIN</th>
+            <th scope="col">Production Year</th>
+            <th scope="col">Owner</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var m in Model)
+            {
+                <tr>
+                    <th scope="row">@m.Id</th>
+                    <td>@m.CarModel.CarBrand.Name @m.CarModel.Name</td>
+                    <td>@m.VIN</td>
+                    <td>@m.ProductionYear</td>
+                    <td>@m.Customer.Name @m.Customer.Surname</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

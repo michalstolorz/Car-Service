@@ -1,9 +1,10 @@
-﻿@model ListRepairAssignedToMechanicViewModel
+﻿@model ListAllRepairsViewModel
+
 @{
-    ViewData["Title"] = "ListRepairAssignedToMechanic";
+    ViewData["Title"] = "ListAllRepairs";
 }
 
-<h1>ListRepairAssignedToMechanic</h1>
+<h1>ListAllRepairs</h1>
 
 <table class="table" style="margin-top: 20px">
     <thead>
@@ -14,7 +15,11 @@
             <th scope="col">Production Year</th>
             <th scope="col">Status</th>
             <th scope="col">Type</th>
+            <th scope="col">Used Parts</th>
             <th scope="col">Description</th>
+            <th scope="col">Assign Employee</th>
+            <th scope="col">Car Owner</th>
+        </tr>
     </thead>
     <tbody>
         @foreach (var mr in Model.Repairs)
@@ -35,13 +40,28 @@
                         }
                     }
                 </td>
+                <td>
+                    @foreach (var mu in Model.UsedParts)
+                    {
+                        if (mr.Id == mu.RepairId)
+                        {
+                            @mu.Part.Name @mu.Quantity
+                            <p></p>
+                        }
+                    }
+                </td>
                 <td>@mr.Description</td>
-                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddPartToRepair" asp-route-id="@mr.Id">Add Parts</a></td>
-                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ChangeStatus" asp-route-id="@mr.Id">Change status</a></td>
-                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddRepairTypeToRepair" asp-route-id="@mr.Id">Add Fault</a></td>
-                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="SetRepairCost" asp-route-id="@mr.Id">Valuation</a></td>
+                @if (@mr.EmployeesId == 0)
+                {
+                    <td></td>
+                }
+                else
+                {
+                    <td>@mr.Employees.Name @mr.Employees.Surname</td>
+                }
+                <td>@mr.Car.Customer.Name @mr.Car.Customer.Surname</td>
+                <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="CustomerCarRepair" asp-route-id="@mr.Id">Client</a></td>
             </tr>
         }
-
     </tbody>
 </table>

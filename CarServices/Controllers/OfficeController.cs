@@ -11,14 +11,17 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using System.Net.Mail;
 
 namespace CarServices.Controllers
 {
     //[Authorize(Roles = "Officeworker, Admin")]
     public class OfficeController : Controller
     {
+        const int waitingForAssigmentStatusId = 7;
         const int repairInProgressStatusId = 8;
         const int forClientDecisionStatusId = 9;
+        const int completeStatusId = 10;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -34,6 +37,7 @@ namespace CarServices.Controllers
         private readonly IPartsRepository _partsRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderDetailsRepository _orderDetailsRepository;
+        private readonly IUsedPartsRepository _usedPartsRepository;
         private readonly IUsedRepairTypeRepository _usedRepairTypeRepository;
 
         public OfficeController(ICustomerRepository customerRepository, ICarRepository carRepository,
@@ -41,7 +45,7 @@ namespace CarServices.Controllers
             IEmployeesRepository employeesRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager,
             IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IHttpContextAccessor httpContextAccessor,
             IPartsRepository partsRepository, IOrderRepository orderRepository, IOrderDetailsRepository orderDetailsRepository,
-            IUsedRepairTypeRepository usedRepairTypeRepository, IRepairStatusRepository repairStatusRepository)
+            IUsedPartsRepository usedPartsRepository, IUsedRepairTypeRepository usedRepairTypeRepository, IRepairStatusRepository repairStatusRepository)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -58,6 +62,7 @@ namespace CarServices.Controllers
             _partsRepository = partsRepository;
             _orderRepository = orderRepository;
             _orderDetailsRepository = orderDetailsRepository;
+            _usedPartsRepository = usedPartsRepository;
             _usedRepairTypeRepository = usedRepairTypeRepository;
         }
 
@@ -69,16 +74,79 @@ namespace CarServices.Controllers
         }
 
         [HttpGet]
+        public IActionResult ListCars()
+        {
+            IEnumerable<Car> listCars = _carRepository.GetAllCar().ToList();
+            foreach(var l in listCars)
+            {
+                CarModel carModel = _carModelRepository.GetCarModel(l.ModelId);
+                l.CarModel = carModel;
+                CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
+                l.CarModel.CarBrand = carBrand;
+                Customer customer = _customerRepository.GetCustomer(l.CustomerId);
+                l.Customer = customer;
+            }
+            return View(listCars);
+        }
+
+        [HttpGet]
+        public IActionResult ListAllRepairs()
+        {
+            List<Repair> listRepairs = _repairRepository.GetAllRepair().OrderBy(r => r.StatusId).ToList();
+            foreach (var l in listRepairs)
+            {
+                Car car = _carRepository.GetCar(l.CarId);
+                Customer customer = _customerRepository.GetCustomer(car.CustomerId);
+                l.Car.Customer = customer;
+                CarModel carModel = _carModelRepository.GetCarModel(car.ModelId);
+                l.Car.CarModel = carModel;
+                CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
+                l.Car.CarModel.CarBrand = carBrand;
+                RepairStatus repairStatus = _repairStatusRepository.GetRepairStatus(l.StatusId ?? repairInProgressStatusId);
+                l.RepairStatus = repairStatus;
+                if (l.EmployeesId == null)
+                    l.EmployeesId = 0;
+                else
+                {
+                    Employees employee = _employeesRepository.GetEmployees(l.EmployeesId ?? 1);
+                    l.Employees = employee;
+                }
+            }
+            List<UsedParts> listUsedParts = _usedPartsRepository.GetAllUsedParts().ToList();
+            foreach (var u in listUsedParts)
+            {
+                Parts part = _partsRepository.GetParts(u.PartId);
+                u.Part = part;
+            }
+            List<UsedRepairType> listUsedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().ToList();
+            foreach (var l in listUsedRepairTypes)
+            {
+                RepairType repairType = _repairTypeRepository.GetRepairType(l.RepairTypeId);
+                l.RepairType = repairType;
+            }
+            ListAllRepairsViewModel model = new ListAllRepairsViewModel()
+            {
+                Repairs = listRepairs,
+                UsedParts = listUsedParts,
+                UsedRepairTypes = listUsedRepairTypes
+            };
+            return View(model);
+        }
+
+        [HttpGet]
         public IActionResult ListRepairsInProgress()
         {
             //listRepairs.RemoveAll(l => l.Status != "Repair in progress");
             //model.repairs.RemoveAll(l => l.Status != "Repair in progress");
 
-            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => (r.StatusId == repairInProgressStatusId) || (r.StatusId == forClientDecisionStatusId)).ToList();
+            //List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => (r.StatusId == repairInProgressStatusId) || (r.StatusId == forClientDecisionStatusId)).ToList();
+            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => (r.StatusId != waitingForAssigmentStatusId) && (r.StatusId != completeStatusId)).ToList();
             List<UsedRepairType> listUsedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().ToList();
             foreach (var l in listRepairs)
             {
                 Car car = _carRepository.GetCar(l.CarId);
+                Customer customer = _customerRepository.GetCustomer(car.CustomerId);
+                l.Car.Customer = customer;
                 CarModel carModel = _carModelRepository.GetCarModel(car.ModelId);
                 l.Car.CarModel = carModel;
                 CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
@@ -150,7 +218,7 @@ namespace CarServices.Controllers
         [HttpPost]
         public IActionResult CustomerCarRepairCustomerDisagree(CustomerCarRepairViewModel customerCarRepairViewModel)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 Repair repair = _repairRepository.GetRepair(customerCarRepairViewModel.RepairId);
                 repair.StatusId = repairInProgressStatusId;
@@ -447,14 +515,66 @@ namespace CarServices.Controllers
         {
             if (ModelState.IsValid)
             {
-                List<RepairType> repairTypes = _repairTypeRepository.GetAllRepairType().ToList();
-                if (repairTypes.FirstOrDefault().Equals(null))
+                List<RepairType> RepairTypes = _repairTypeRepository.GetAllRepairType().Where(r => r.Name == model.Name).ToList();
+                if (RepairTypes.Count == 0)
                 {
                     _repairTypeRepository.Add(model);
                     return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError(string.Empty, "Repair type already exist");
             }
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult AddCarBrand()
+        {
+            List<CarBrand> listCarBrands = _carBrandRepository.GetAllCarBrand().ToList();
+            AddCarBrandViewModel model = new AddCarBrandViewModel()
+            { CarBrands = listCarBrands };
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult AddCarBrand(AddCarBrandViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                CarBrand carBrand = new CarBrand()
+                { Name = model.NewCarBrand };
+                _carBrandRepository.Add(carBrand);
+            }
+            List<CarBrand> listCarBrands = _carBrandRepository.GetAllCarBrand().ToList();
+            model.CarBrands = listCarBrands;
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult AddCarModel(int Id)
+        {
+            List<CarModel> listCarModels = _carModelRepository.GetAllCarModel().Where(c => c.BrandId == Id).ToList();
+            AddCarModelViewModel model = new AddCarModelViewModel()
+            {
+                CarModels = listCarModels,
+                CarBrandId = Id
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult AddCarModel(AddCarModelViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                CarModel carModel = new CarModel()
+                {
+                    Name = model.NewCarModel,
+                    BrandId = model.CarBrandId
+                };
+                _carModelRepository.Add(carModel);
+            }
+            List<CarModel> listCarModels = _carModelRepository.GetAllCarModel().Where(c => c.BrandId == model.CarBrandId).ToList();
+            model.CarModels = listCarModels;
             return View(model);
         }
     }

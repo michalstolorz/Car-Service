@@ -25,7 +25,7 @@
         <div class="col-sm-10">
             @Html.DropDownListFor(m => m.ChoosenCustomerId, new SelectList(Model.CustomersList, "Value", "Text"), "Select Customer", new { @style = "width:200px;" })
             <span asp-validation-for="ChoosenCustomerId" class="text-danger"></span>
-            <a class="btn btn-primary" role="button" asp-controller="Office" asp-action="AddCustomer">Add new customer do base</a>
+            <a class="btn btn-primary" role="button" asp-controller="Office" asp-action="AddCustomer">Add new customer to base</a>
         </div>
     </div>
     <div class="form-group row">
@@ -34,6 +34,7 @@
             @Html.DropDownListFor(m => m.Id, new SelectList(Model.CarBrands, "Id", "Name"), "Select Brand", new { @id = "ddlbrand", @style = "width:200px;", @onchange = "javascript:GetModel(this.value);" })
             <select id="ddlmodel" name="ddlmodel" style="width: 200px" onchange=javascript:FillModel(this.value)>
             </select>
+            <a class="btn btn-primary" role="button" asp-controller="Office" asp-action="AddCarBrand">Add new car brand/model to base</a>
         </div>
     </div>
 

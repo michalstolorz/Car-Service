@@ -15,6 +15,7 @@
             <th scope="col">Status</th>
             <th scope="col">Type</th>
             <th scope="col">Assign Employee</th>
+            <th scope="col">Car Owner</th>
         </tr>
     </thead>
     <tbody>
@@ -39,6 +40,7 @@
                         }
                     </td>
                     <td>@mr.Employees.Name @mr.Employees.Surname</td>
+                    <td>@mr.Car.Customer.Name @mr.Car.Customer.Surname</td>
                     <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="CustomerCarRepair" asp-route-id="@mr.Id">Client</a></td>
                 </tr>
             }
@@ -61,6 +63,7 @@
                         }
                     </td>
                     <td>@mr.Employees.Name @mr.Employees.Surname</td>
+                    <td>@mr.Car.Customer.Name @mr.Car.Customer.Surname</td>
                     <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="CustomerCarRepair" asp-route-id="@mr.Id">Client</a></td>
                 </tr>
             }

@@ -1,0 +1,45 @@
+﻿@model AddCarBrandViewModel
+@{
+    ViewData["Title"] = "AddCarBrand";
+}
+
+<h1>AddCarBrand</h1>
+
+<form asp-action="AddCarBrand" method="post" class="mt-3">
+    <div asp-validation-summary="All" class="text-danger">
+    </div>
+    <div class="form-group row">
+        <label asp-for="NewCarBrand" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="NewCarBrand" class="form-control" placeholder="Car Brand">
+            <span asp-validation-for="NewCarBrand" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary" style="width:auto">
+                Add new brand
+            </button>
+        </div>
+    </div>
+</form>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Car Brand</th>
+            <th scope="col">Add new model to this brand</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cb in Model.CarBrands)
+        {
+            <tr>
+                <th scope="row">@cb.Id</th>
+                <td>@cb.Name</td>
+                <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="AddCarModel" asp-route-id="@cb.Id">Add new model</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -55,36 +55,38 @@
     </tbody>
 </table>
 
-
-<form asp-action="CustomerCarRepairCustomerAgree" method="post" class="mt-3">
-    @Html.HiddenFor(model => model.RepairId)
-    <div class="form-group row">
-        <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary" style="width:auto">
-                Customer Agree
-            </button>
+@if (Model.Repair.StatusId == 9)
+{
+    <form asp-action="CustomerCarRepairCustomerAgree" method="post" class="mt-3">
+        @Html.HiddenFor(model => model.RepairId)
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary" style="width:auto">
+                    Customer Agree
+                </button>
+            </div>
         </div>
-    </div>
-</form>
+    </form>
 
-<br />
+    <br />
 
-<form asp-action="CustomerCarRepairCustomerDisagree" method="post" class="mt-3">
-    <div asp-validation-summary="All" class="text-danger">
-    </div>
-    <div class="form-group row">
-        <label asp-for="Description" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <input asp-for="Description" class="form-control" placeholder="Description">
-            <span asp-validation-for="Description" class="text-danger"></span>
+    <form asp-action="CustomerCarRepairCustomerDisagree" method="post" class="mt-3">
+        <div asp-validation-summary="All" class="text-danger">
         </div>
-    </div>
-    @Html.HiddenFor(model => model.RepairId)
-    <div class="form-group row">
-        <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary" style="width:auto">
-                Customer Disagree
-            </button>
+        <div class="form-group row">
+            <label asp-for="Description" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <input asp-for="Description" class="form-control" placeholder="Description">
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
         </div>
-    </div>
-</form>
+        @Html.HiddenFor(model => model.RepairId)
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary" style="width:auto">
+                    Customer Disagree
+                </button>
+            </div>
+        </div>
+    </form>
+}
