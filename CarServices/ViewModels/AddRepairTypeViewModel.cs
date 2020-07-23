@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace CarServices.ViewModels
 {
-    public class AddCarBrandViewModel
+    public class AddRepairTypeViewModel
     {
-        public List<CarBrand> CarBrands { get; set; }
+        public List<RepairType> RepairTypes { get; set; }
         [Required]
-        [Display(Name = "New car brand")]
-        //[RegularExpression("a-zA-Z")]
-        public string NewCarBrand { get; set; }
+        [Display(Name = "New repair type")]
+        public string NewRepairType { get; set; }
     }
 }

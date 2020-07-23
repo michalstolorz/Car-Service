@@ -17,5 +17,6 @@ namespace CarServices.ViewModels
         [Display(Name = "Cost for work")]
         public double CostForWork { get; set; }
         public double CostForParts { get; set; }
+        public Repair Repair { get; set; }
     }
 }

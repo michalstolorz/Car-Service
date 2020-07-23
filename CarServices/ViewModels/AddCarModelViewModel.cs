@@ -12,6 +12,7 @@ namespace CarServices.ViewModels
         public List<CarModel> CarModels { get; set; }
         [Required]
         [Display(Name = "New car model")]
+        //[RegularExpression("a-zA-Z")]
         public string NewCarModel { get; set; }
         public int CarBrandId { get; set; }
     }

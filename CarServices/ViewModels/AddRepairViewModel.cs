@@ -14,8 +14,17 @@ namespace CarServices.ViewModels
         public List<SelectListItem> CarList { get; set; }
         [Display(Name = "Car")]
         public int ChoosenCarId { get; set; }
-        public List<RepairType> RepairTypeList { get; set; }
+        //public List<RepairType> RepairTypeList { get; set; }
         [Display(Name = "Repair Type")]
         public int ChoosenTypeId { get; set; }
+        public List<RepairTypeEntity> RepairTypeEntities { get; set; }
+    }
+
+    public class RepairTypeEntity
+    {
+        [Display(Name = "Repair Type")]
+        public RepairType RepairType { get; set; }
+        [Display(Name = "Repair Type")]
+        public bool IsSelected { get; set; }
     }
 }

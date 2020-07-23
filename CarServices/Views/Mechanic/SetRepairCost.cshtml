@@ -1,6 +1,15 @@
 ﻿@model SetRepairCostViewModel
 @{
     ViewData["Title"] = "SetRepairCost";
+    double? workPrice;
+    if (@Model.Repair.Cost != null)
+    {
+        workPrice = @Model.Repair.Cost - @Model.CostForParts;
+    }
+    else
+    {
+        workPrice = 0;
+    }
 }
 
 <h1>SetRepairCost</h1>
@@ -36,6 +45,12 @@
                             <td scope="row"></td>
                             <td scope="row">All used parts price:</td>
                             <td scope="row">@Model.CostForParts</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"></th>
+                            <td scope="row"></td>
+                            <td scope="row">Work price:</td>
+                            <td scope="row">@workPrice</td>
                         </tr>
                     }
                 </tbody>

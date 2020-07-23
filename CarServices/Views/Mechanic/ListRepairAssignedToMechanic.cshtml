@@ -8,6 +8,7 @@
 <table class="table" style="margin-top: 20px">
     <thead>
         <tr>
+            <th scope="col"></th>
             <th scope="col">Id</th>
             <th scope="col">Car</th>
             <th scope="col">VIN</th>
@@ -20,6 +21,7 @@
         @foreach (var mr in Model.Repairs)
         {
             <tr>
+                <td><a class="btn btn-danger" role="button" asp-controller="Mechanic" asp-action="AbandonRepair" asp-route-id="@mr.Id">Abandon</a></td>
                 <th scope="row">@mr.Id</th>
                 <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
                 <td>@mr.Car.VIN</td>
@@ -36,6 +38,7 @@
                     }
                 </td>
                 <td>@mr.Description</td>
+                <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddVINToRepair" asp-route-id="@mr.Id">Add VIN</a></td>
                 <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddPartToRepair" asp-route-id="@mr.Id">Add Parts</a></td>
                 <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ChangeStatus" asp-route-id="@mr.Id">Change status</a></td>
                 <td><a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="AddRepairTypeToRepair" asp-route-id="@mr.Id">Add Fault</a></td>

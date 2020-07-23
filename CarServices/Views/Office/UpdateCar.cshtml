@@ -1,15 +1,24 @@
 ﻿@model AddCarViewModel
 @{
-    ViewData["Title"] = "AddCar";
+    ViewData["Title"] = "UpdateCar";
 }
 
-<form asp-action="AddCar" method="post" class="mt-3">
+<h1>UpdateCar</h1>
+
+<form asp-action="UpdateCar" method="post" class="mt-3">
     <div asp-validation-summary="All" class="text-danger">
+    </div>
+    <div class="form-group row">
+        <label asp-for="VIN" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="VIN" class="form-control" placeholder="@Model.VIN">
+            <span asp-validation-for="VIN" class="text-danger"></span>
+        </div>
     </div>
     <div class="form-group row">
         <label asp-for="ProductionYear" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
-            <input asp-for="ProductionYear" class="form-control" placeholder="Production year">
+            <input asp-for="ProductionYear" class="form-control" placeholder="@Model.ProductionYear">
             <span asp-validation-for="ProductionYear" class="text-danger"></span>
         </div>
     </div>
@@ -34,7 +43,7 @@
     <div class="form-group row">
         <div class="col-sm-10">
             <button type="submit" class="btn btn-primary" style="width:auto">
-                Add Car
+                Update Car
             </button>
         </div>
     </div>
@@ -81,5 +90,3 @@
         });
     }
 </script>
-
- 

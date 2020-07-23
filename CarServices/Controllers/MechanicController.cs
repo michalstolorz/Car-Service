@@ -17,6 +17,9 @@ namespace CarServices.Controllers
     //[Authorize(Roles = "Mechanic, Admin")]
     public class MechanicController : Controller
     {
+        const int waitingForAssigmentStatusId = 7;
+        const int repairInProgressStatusId = 8;
+        const int completeStatusId = 10;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -60,9 +63,8 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult ListRepairAssign()
         {
-            const int completeStatusId = 10;
-            const int repairInProgressStatusId = 8;
-            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => r.StatusId != completeStatusId).ToList(); 
+            //const int repairInProgressStatusId = 8;
+            List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => r.StatusId != completeStatusId).ToList();
             List<UsedRepairType> listUsedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().ToList();
             foreach (var l in listRepairs)
             {
@@ -102,20 +104,25 @@ namespace CarServices.Controllers
             string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             Employees employees = _employeesRepository.GetAllEmployees().Where(u => u.UserId == userId).FirstOrDefault();
 
-            const int repairInProgressStatusId = 8;
             Repair repair = _repairRepository.GetRepair(id);
             repair.StatusId = repairInProgressStatusId;
             repair.EmployeesId = employees.Id;
 
             _repairRepository.Update(repair);
-            return RedirectToAction("ListRepairAssign", "Mechanic");
+            Car car = _carRepository.GetCar(repair.CarId);
+            repair.Car = car;
+            CarModel carModel = _carModelRepository.GetCarModel(car.ModelId);
+            repair.Car.CarModel = carModel;
+            CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
+            repair.Car.CarModel.CarBrand = carBrand;
+            Customer customer = _customerRepository.GetCustomer(car.CustomerId);
+            repair.Car.Customer = customer;
+            return View("AssignConfirm", repair);
         }
 
         [HttpGet]
         public IActionResult ListRepairAssignedToMechanic()
         {
-            const int completeStatusId = 10;
-            const int repairInProgressStatusId = 8;
             string user = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             Employees employees = _employeesRepository.GetEmployeesByUserId(user);
             List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => (r.EmployeesId == employees.Id) && (r.StatusId != completeStatusId)).ToList();
@@ -143,6 +150,7 @@ namespace CarServices.Controllers
                 Repairs = listRepairs,
                 UsedRepairTypes = listUsedRepairTypes
             };
+
             return View(model);
         }
 
@@ -161,6 +169,7 @@ namespace CarServices.Controllers
                 UsedParts = usedPartslist,
                 RepairId = id
             };
+
             return View(model);
         }
 
@@ -172,16 +181,28 @@ namespace CarServices.Controllers
             {
                 if (partsCheck.Quantity >= model.UsedPartQuantity && model.UsedPartQuantity > 0)
                 {
-                    UsedParts usedParts = new UsedParts()
+                    List<UsedParts> listUsedParts = _usedPartsRepository.GetAllUsedParts().Where(u => (u.PartId == model.ChoosenPartId) && (u.RepairId == model.RepairId)).ToList();
+                    if (listUsedParts.Any())
                     {
-                        RepairId = model.RepairId,
-                        PartId = model.ChoosenPartId,
-                        Quantity = model.UsedPartQuantity
-                    };
-                    _usedPartsRepository.Add(usedParts);
+                        UsedParts usedPart = listUsedParts.FirstOrDefault();
+                        usedPart.Quantity += model.UsedPartQuantity;
+                        _usedPartsRepository.Update(usedPart);
+                    }
+                    else
+                    {
+                        UsedParts usedParts = new UsedParts()
+                        {
+                            RepairId = model.RepairId,
+                            PartId = model.ChoosenPartId,
+                            Quantity = model.UsedPartQuantity
+                        };
+                        _usedPartsRepository.Add(usedParts);
+                    }
+
                     Parts parts = _partsRepository.GetParts(model.ChoosenPartId);
                     parts.Quantity -= model.UsedPartQuantity;
                     _partsRepository.Update(parts);
+
                     return RedirectToAction("AddPartToRepair", "Mechanic", model.RepairId);
                 }
                 ModelState.AddModelError(string.Empty, "Wrong quantity of selected part. Not enough parts in the warehouse or value is negative");
@@ -194,6 +215,7 @@ namespace CarServices.Controllers
             }
             model.AvailableParts = _partsRepository.GetAllParts().Where(p => p.Quantity > 0).ToList();
             model.UsedParts = usedPartslist;
+
             return View(model);
         }
 
@@ -212,8 +234,10 @@ namespace CarServices.Controllers
             {
                 UsedParts = usedPartslist,
                 RepairId = id,
-                CostForParts = summaryPriceForUsedParts
+                CostForParts = summaryPriceForUsedParts,
+                Repair = _repairRepository.GetRepair(id)
             };
+
             return View(model);
         }
 
@@ -234,6 +258,7 @@ namespace CarServices.Controllers
                 u.Part = part;
             }
             model.UsedParts = usedPartslist;
+
             return View(model);
         }
 
@@ -245,6 +270,7 @@ namespace CarServices.Controllers
             model.StatusList = _repairStatusRepository.GetAllRepairStatus().ToList();
             RepairStatus repairStatus = _repairStatusRepository.GetRepairStatus(completeStatusId);
             model.StatusList.Remove(repairStatus);
+
             return View(model);
         }
 
@@ -257,8 +283,10 @@ namespace CarServices.Controllers
                 repair.StatusId = model.ChoosenStatusId;
                 repair.Description += model.Description + ". ";
                 _repairRepository.Update(repair);
+
                 return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
             }
+
             return View(model);
         }
 
@@ -270,13 +298,14 @@ namespace CarServices.Controllers
                 RepairId = id,
                 RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList()
             };
+
             return View(model);
         }
 
         [HttpPost]
         public IActionResult AddRepairTypeToRepair(AddRepairTypeToRepairViewModel model)
         {
-            if (ModelState.IsValid) 
+            if (ModelState.IsValid)
             {
                 List<UsedRepairType> usedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().Where(u => (u.RepairId == model.RepairId) && (u.RepairTypeId == model.ChoosenRepairTypeId)).ToList();
                 if (usedRepairTypes.Count == 0)
@@ -287,6 +316,7 @@ namespace CarServices.Controllers
                         RepairTypeId = model.ChoosenRepairTypeId
                     };
                     _usedRepairTypeRepository.Add(usedRepairType);
+
                     return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
 
                 }
@@ -295,6 +325,49 @@ namespace CarServices.Controllers
             model.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
             if (model.ChoosenRepairTypeId == 0)
                 ModelState.AddModelError(string.Empty, "Repair type hadn't been choosen");
+
+            return View(model);
+        }
+
+        public IActionResult AbandonRepair(int id)
+        {
+            Repair repair = _repairRepository.GetRepair(id);
+            repair.EmployeesId = null;
+            repair.StatusId = waitingForAssigmentStatusId;
+            _repairRepository.Update(repair);
+
+            return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
+        }
+
+        public IActionResult DeletePartFromRepair(int partId, int repairId)
+        {
+            _usedPartsRepository.Delete(partId);
+
+            return RedirectToAction("AddPartToRepair", "Mechanic", new { id = repairId });
+        }
+
+        [HttpGet]
+        public IActionResult AddVINToRepair(int id)
+        {
+            AddVINToRepairViewModel model = new AddVINToRepairViewModel()
+            { RepairId = id };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult AddVINToRepair(AddVINToRepairViewModel model)
+        {
+            if(ModelState.IsValid)
+            {
+                Repair repair = _repairRepository.GetRepair(model.RepairId);
+                Car car = _carRepository.GetCar(repair.CarId);
+                car.VIN = model.VIN;
+                _carRepository.Update(car);
+
+                return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
+            }
+
             return View(model);
         }
     }

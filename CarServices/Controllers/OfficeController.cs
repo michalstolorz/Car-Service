@@ -77,7 +77,7 @@ namespace CarServices.Controllers
         public IActionResult ListCars()
         {
             IEnumerable<Car> listCars = _carRepository.GetAllCar().ToList();
-            foreach(var l in listCars)
+            foreach (var l in listCars)
             {
                 CarModel carModel = _carModelRepository.GetCarModel(l.ModelId);
                 l.CarModel = carModel;
@@ -141,6 +141,8 @@ namespace CarServices.Controllers
 
             //List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => (r.StatusId == repairInProgressStatusId) || (r.StatusId == forClientDecisionStatusId)).ToList();
             List<Repair> listRepairs = _repairRepository.GetAllRepair().Where(r => (r.StatusId != waitingForAssigmentStatusId) && (r.StatusId != completeStatusId)).ToList();
+            //if(listRepairs.Any(r => r.StatusId == forClientDecisionStatusId))
+            //listRepairs.OrderBy(o => o.StatusId)
             List<UsedRepairType> listUsedRepairTypes = _usedRepairTypeRepository.GetAllUsedRepairType().ToList();
             foreach (var l in listRepairs)
             {
@@ -283,6 +285,7 @@ namespace CarServices.Controllers
                 _customerRepository.Add(customer);
                 return RedirectToAction("index", "home");
             }
+
             return View(customer);
         }
 
@@ -307,6 +310,7 @@ namespace CarServices.Controllers
             List<CarModel> carModels = new List<CarModel>();
             carModels = _carModelRepository.GetAllCarModel().Where(m => m.BrandId == brandId).ToList();
             SelectList model = new SelectList(carModels, "Id", "Name", 0);
+
             return Json(model);
         }
 
@@ -324,7 +328,7 @@ namespace CarServices.Controllers
                 model.ChoosenModelId = _localDataRepository.GetModelId();
                 Car car = new Car
                 {
-                    VIN = model.VIN.ToUpper(),
+                    VIN = "",
                     ProductionYear = model.ProductionYear,
                     ModelId = model.ChoosenModelId,
                     CustomerId = model.ChoosenCustomerId
@@ -342,13 +346,64 @@ namespace CarServices.Controllers
         }
 
         [HttpGet]
+        public IActionResult UpdateCar(int id)
+        {
+            Car car = _carRepository.GetCar(id);
+            AddCarViewModel model = new AddCarViewModel()
+            {
+                Id = car.Id,
+                VIN = car.VIN,
+                ProductionYear = car.ProductionYear,
+                ChoosenModelId = car.ModelId,
+                ChoosenCustomerId = car.CustomerId,
+                CarBrands = _carBrandRepository.GetAllCarBrand().ToList()
+            };
+            List<Customer> customerList = _customerRepository.GetAllCustomer().ToList();
+            model.CustomersList = new List<SelectListItem>();
+            foreach (var c in customerList)
+                model.CustomersList.Add(new SelectListItem { Text = c.Name + " " + c.Surname, Value = c.Id.ToString() });
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateCar(AddCarViewModel model)
+        {
+            if(ModelState.IsValid)
+            {
+                model.ChoosenModelId = _localDataRepository.GetModelId();
+                Car car = new Car
+                {
+                    VIN = model.VIN,
+                    ProductionYear = model.ProductionYear,
+                    ModelId = model.ChoosenModelId,
+                    CustomerId = model.ChoosenModelId
+                };
+                _carRepository.Update(car);
+                return RedirectToAction("listcars", "office");
+            }
+            return View(model);
+        }
+
+        [HttpGet]
         public IActionResult AddRepair()
         {
             AddRepairViewModel model = new AddRepairViewModel
             {
-                RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList(),
-                CarList = new List<SelectListItem>()
+                //RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList(),
+                CarList = new List<SelectListItem>(),
+                RepairTypeEntities = new List<RepairTypeEntity>()
             };
+            List<RepairType> listRepairTypes = _repairTypeRepository.GetAllRepairType().ToList();
+            foreach (var l in listRepairTypes)
+            {
+                RepairTypeEntity repairType = new RepairTypeEntity()
+                {
+                    RepairType = l,
+                    IsSelected = false
+                };
+                model.RepairTypeEntities.Add(repairType);
+            }
             List<Car> carList = _carRepository.GetAllCar().ToList();
             foreach (var c in carList)
             {
@@ -373,16 +428,21 @@ namespace CarServices.Controllers
                     StatusId = repairWaitingForAssignmentStatusId
                 };
                 _repairRepository.Add(repair);
-                List<Repair> repairs = _repairRepository.GetAllRepair().ToList();
-                UsedRepairType usedRepairType = new UsedRepairType()
+                repair = _repairRepository.GetAllRepair().LastOrDefault();
+                foreach (var r in model.RepairTypeEntities)
                 {
-                    RepairId = repairs.LastOrDefault().Id,
-                    RepairTypeId = model.ChoosenTypeId
-                };
-                _usedRepairTypeRepository.Add(usedRepairType);
+                    if (r.IsSelected == true)
+                    {
+                        UsedRepairType usedRepairType = new UsedRepairType()
+                        {
+                            RepairId = repair.Id,
+                            RepairTypeId = r.RepairType.Id
+                        };
+                        _usedRepairTypeRepository.Add(usedRepairType);
+                    }
+                }
                 return RedirectToAction("index", "home");
             }
-            model.RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList();
             model.CarList = new List<SelectListItem>();
             var carList = _carRepository.GetAllCar().ToList();
             foreach (var c in carList)
@@ -507,23 +567,37 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult AddRepairType()
         {
-            return View();
+            List<RepairType> listRepairTypes = _repairTypeRepository.GetAllRepairType().ToList();
+            AddRepairTypeViewModel model = new AddRepairTypeViewModel()
+            { RepairTypes = listRepairTypes };
+            return View(model);
         }
 
         [HttpPost]
-        public IActionResult AddRepairType(RepairType model)
+        public IActionResult AddRepairType(AddRepairTypeViewModel model)
         {
             if (ModelState.IsValid)
             {
-                List<RepairType> RepairTypes = _repairTypeRepository.GetAllRepairType().Where(r => r.Name == model.Name).ToList();
+                List<RepairType> RepairTypes = _repairTypeRepository.GetAllRepairType().Where(r => r.Name == model.NewRepairType).ToList();
                 if (RepairTypes.Count == 0)
                 {
-                    _repairTypeRepository.Add(model);
+                    RepairType repairType = new RepairType()
+                    { Name = model.NewRepairType };
+                    _repairTypeRepository.Add(repairType);
+
                     return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError(string.Empty, "Repair type already exist");
             }
+
             return View(model);
+        }
+
+        public IActionResult DeleteRepairType(int id)
+        {
+            _repairTypeRepository.Delete(id);
+
+            return RedirectToAction("AddRepairType", "office");
         }
 
         [HttpGet]
@@ -540,6 +614,7 @@ namespace CarServices.Controllers
         {
             if (ModelState.IsValid)
             {
+                model.NewCarBrand = model.NewCarBrand.ToUpper();
                 CarBrand carBrand = new CarBrand()
                 { Name = model.NewCarBrand };
                 _carBrandRepository.Add(carBrand);
@@ -566,6 +641,7 @@ namespace CarServices.Controllers
         {
             if (ModelState.IsValid)
             {
+                model.NewCarModel = model.NewCarModel.ToUpper();
                 CarModel carModel = new CarModel()
                 {
                     Name = model.NewCarModel,

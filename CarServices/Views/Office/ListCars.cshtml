@@ -29,6 +29,7 @@
                     <td>@m.VIN</td>
                     <td>@m.ProductionYear</td>
                     <td>@m.Customer.Name @m.Customer.Surname</td>
+                    <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="UpdateCar" asp-route-id="@m.Id">Edit</a></td>
                 </tr>
             }
         }

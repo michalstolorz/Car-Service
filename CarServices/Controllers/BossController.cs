@@ -193,17 +193,24 @@ namespace CarServices.Controllers
             double summaryPartsPrice = 0;
             foreach (var u in usedPartsList)
             {
+                double TaxValueForList1 = (double)(u.Part.PartPrice * u.Quantity * VATValue);
+                double NetPriceForList1 = u.Part.PartPrice * TaxNetValueValue;
+                double NetValueForList1 = u.Part.PartPrice * u.Quantity * TaxNetValueValue;
+                TaxValueForList1 = Math.Round(TaxValueForList1, 2);
+                NetPriceForList1 = Math.Round(NetPriceForList1, 2);
+                NetValueForList1 = Math.Round(NetValueForList1, 2);
                 model.Add(new CreateInvoicePDFViewModel
                 {
                     Id = i,
                     Name = u.Part.Name,
                     Quantity = u.Quantity,
-                    NetPrice = u.Part.PartPrice * TaxNetValueValue,
-                    NetValue = u.Part.PartPrice * TaxNetValueValue * u.Quantity,
+                    NetPrice = NetPriceForList1,
+                    NetValue = NetValueForList1,
                     Tax = (VATValue * 100).ToString() + "%",
-                    TaxValue = u.Part.PartPrice * VATValue * u.Quantity,
+                    TaxValue = TaxValueForList1,
                     SummaryPrice = u.Part.PartPrice * u.Quantity
                 });
+
 
                 summaryPartsPrice += u.Part.PartPrice * u.Quantity;
                 i++;
@@ -212,16 +219,22 @@ namespace CarServices.Controllers
             foreach (var u in usedRepairTypesList)
                 allRepairNames += u.RepairType.Name + "\n";
 
+            double TaxValueForList2 = (double)(repair.Cost * VATValue);
+            double NetPriceForList2 = (double)(repair.Cost * TaxNetValueValue);
+            double NetValueForList2 = (double)(repair.Cost * TaxNetValueValue);
+            TaxValueForList2 = Math.Round(TaxValueForList2, 2);
+            NetPriceForList2 = Math.Round(NetPriceForList2, 2);
+            NetValueForList2 = Math.Round(NetValueForList2, 2);
             model.Add(new CreateInvoicePDFViewModel
             {
                 Id = i,
                 Name = allRepairNames,
                 Quantity = 1,
-                NetPrice = (double)(repair.Cost * TaxNetValueValue),
-                NetValue = (double)(repair.Cost * TaxNetValueValue),
+                NetPrice = NetPriceForList2,
+                NetValue = NetValueForList2,
                 Tax = (VATValue * 100).ToString() + "%",
-                TaxValue = (double)repair.Cost * VATValue,
-                SummaryPrice = (double)repair.Cost
+                TaxValue = TaxValueForList2,
+                SummaryPrice = (double)repair.Cost - summaryPartsPrice
             });
 
             grid.DataSource = model;
@@ -245,7 +258,7 @@ namespace CarServices.Controllers
             textElement.Font = arialBoldFont;
             layoutResult = textElement.Draw(page, new PointF(headerAmountBounds.X - 40, layoutResult.Bounds.Bottom + lineSpace));
 
-            float totalAmount = (float)((repair.Cost + summaryPartsPrice) * ((100 - customer.Discount) / 100));
+            float totalAmount = (float)((repair.Cost) * ((100 - customer.Discount) / 100));
 
             textElement.Text = totalAmount.ToString() + "PLN";
             layoutResult = textElement.Draw(page, new PointF(layoutResult.Bounds.Right + 4, layoutResult.Bounds.Y));
