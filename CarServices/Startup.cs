@@ -17,6 +17,7 @@ using CarServices.Models.LocalDataRepository;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using CarServices.Models.SQLRepositories;
 
 namespace CarServices
 {
@@ -60,6 +61,7 @@ namespace CarServices
             services.AddScoped<ICustomerRepository, SQLCustomerRepository>();
             services.AddScoped<IEmployeesRepository, SQLEmployeesRepository>();
             services.AddScoped<IInvoiceRepository, SQLInvoiceRepository>();
+            services.AddScoped<IMechanicsMessagesRepository, SQLMechanicsMessagesRepository>();
             services.AddScoped<IOrderRepository, SQLOrderRepository>();
             services.AddScoped<IOrderDetailsRepository, SQLOrderDetailsRepository>();
             services.AddScoped<IPartsRepository, SQLPartsRepository>();

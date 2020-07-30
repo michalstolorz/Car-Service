@@ -28,7 +28,7 @@ namespace CarServices.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, ICarRepository carRepository, ICustomerRepository customerRepository, 
+        public HomeController(ILogger<HomeController> logger, ICarRepository carRepository, ICustomerRepository customerRepository,
             IHttpContextAccessor httpContextAccessor, IPartsRepository partsRepository, IRepairRepository repairRepository,
             ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
@@ -49,7 +49,7 @@ namespace CarServices.Controllers
             List<string> model = new List<string>();
             List<Parts> parts = _partsRepository.GetAllParts().Where(p => p.Quantity == 0).ToList();
             string modelString = "";
-            foreach(var m in parts)
+            foreach (var m in parts)
             {
                 modelString += @"\n" + m.Name;
             }
@@ -57,7 +57,20 @@ namespace CarServices.Controllers
             modelString = "";
             List<Repair> repairs = _repairRepository.GetAllRepair().Where(r => r.StatusId == 9).ToList();
             repairs = repairs.GroupBy(r => r.CarId).Select(g => g.First()).ToList();
-            foreach(var m in repairs)
+            foreach (var m in repairs)
+            {
+                Car car = _carRepository.GetCar(m.CarId);
+                CarModel carModel = _carModelRepository.GetCarModel(car.ModelId);
+                car.CarModel = carModel;
+                CarBrand carBrand = _carBrandRepository.GetCarBrand(carModel.BrandId);
+                car.CarModel.CarBrand = carBrand;
+                modelString += @"\n" + car.CarModel.CarBrand.Name + " " + car.CarModel.Name + " " + car.VIN;
+            }
+            model.Add(modelString);
+            modelString = "";
+            List<Repair> repairs2 = _repairRepository.GetAllRepair().Where(r => r.StatusId == 12).ToList();
+            repairs2 = repairs2.GroupBy(r => r.CarId).Select(g => g.First()).ToList();
+            foreach (var m in repairs2)
             {
                 Car car = _carRepository.GetCar(m.CarId);
                 CarModel carModel = _carModelRepository.GetCarModel(car.ModelId);

@@ -32,6 +32,7 @@ namespace CarServices.Controllers
         private readonly IRepairTypeRepository _repairTypeRepository;
         private readonly IRepairStatusRepository _repairStatusRepository;
         private readonly IRepairRepository _repairRepository;
+        private readonly IMechanicsMessagesRepository _mechanicsMessagesRepository;
         private readonly IPartsRepository _partsRepository;
         private readonly IUsedPartsRepository _usedPartsRepository;
         private readonly IUsedRepairTypeRepository _usedRepairTypeRepository;
@@ -39,9 +40,9 @@ namespace CarServices.Controllers
         public MechanicController(ICustomerRepository customerRepository, ICarRepository carRepository,
             ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, ILocalDataRepository localDataRepository,
             IEmployeesRepository employeesRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager,
-            IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IHttpContextAccessor httpContextAccessor,
-            IPartsRepository partsRepository, IUsedPartsRepository usedPartsRepository, IUsedRepairTypeRepository usedRepairTypeRepository,
-            IRepairStatusRepository repairStatusRepository)
+            IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IMechanicsMessagesRepository mechanicsMessagesRepository, 
+            IHttpContextAccessor httpContextAccessor, IPartsRepository partsRepository, IUsedPartsRepository usedPartsRepository, 
+            IUsedRepairTypeRepository usedRepairTypeRepository, IRepairStatusRepository repairStatusRepository)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -55,6 +56,7 @@ namespace CarServices.Controllers
             _repairTypeRepository = repairTypeRepository;
             _repairStatusRepository = repairStatusRepository;
             _repairRepository = repairRepository;
+            _mechanicsMessagesRepository = mechanicsMessagesRepository;
             _partsRepository = partsRepository;
             _usedPartsRepository = usedPartsRepository;
             _usedRepairTypeRepository = usedRepairTypeRepository;
@@ -102,7 +104,7 @@ namespace CarServices.Controllers
         public IActionResult AssignRepair(int id)
         {
             string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            Employees employees = _employeesRepository.GetAllEmployees().Where(u => u.UserId == userId).FirstOrDefault();
+            Employees employees = _employeesRepository.GetEmployeesByUserId(userId); //.GetAllEmployees().Where(u => u.UserId == userId).FirstOrDefault();
 
             Repair repair = _repairRepository.GetRepair(id);
             repair.StatusId = repairInProgressStatusId;
@@ -220,6 +222,31 @@ namespace CarServices.Controllers
         }
 
         [HttpGet]
+        public IActionResult SendMessageAboutMissingParts()
+        {
+            MechanicsMessages model = new MechanicsMessages();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult SendMessageAboutMissingParts(MechanicsMessages model)
+        {
+            if(ModelState.IsValid)
+            {
+                string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                Employees employee = _employeesRepository.GetEmployeesByUserId(userId);
+                model.MessageDateTime = DateTime.Now;
+                model.EmployeeId = employee.Id;
+                _mechanicsMessagesRepository.Add(model);
+
+                return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
+            }
+
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult SetRepairCost(int id)
         {
             List<UsedParts> usedPartslist = _usedPartsRepository.GetAllUsedParts().Where(up => up.RepairId == id).ToList();
@@ -281,7 +308,8 @@ namespace CarServices.Controllers
             {
                 Repair repair = _repairRepository.GetRepair(model.Id);
                 repair.StatusId = model.ChoosenStatusId;
-                repair.Description += model.Description + ". ";
+                if (model.Description != null && model.Description != "")
+                    repair.Description += model.Description + ". ";
                 _repairRepository.Update(repair);
 
                 return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
@@ -293,10 +321,17 @@ namespace CarServices.Controllers
         [HttpGet]
         public IActionResult AddRepairTypeToRepair(int id)
         {
+            List<UsedRepairType> usedRepairTypeslist = _usedRepairTypeRepository.GetAllUsedRepairType().Where(t => t.RepairId == id).ToList();
+            foreach (var u in usedRepairTypeslist)
+            {
+                RepairType repairType = _repairTypeRepository.GetRepairType(u.RepairId);
+                u.RepairType = repairType;
+            }
             AddRepairTypeToRepairViewModel model = new AddRepairTypeToRepairViewModel()
             {
                 RepairId = id,
-                RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList()
+                RepairTypeList = _repairTypeRepository.GetAllRepairType().ToList(),
+                UsedRepairTypeList = usedRepairTypeslist
             };
 
             return View(model);
@@ -329,6 +364,13 @@ namespace CarServices.Controllers
             return View(model);
         }
 
+        public IActionResult DeleteRepairTypeFromRepair(int repairTypeId, int repairId)
+        {
+            _usedRepairTypeRepository.Delete(repairTypeId);
+
+            return RedirectToAction("AddRepairTypeToRepair", "Mechanic", new { id = repairId });
+        }
+
         public IActionResult AbandonRepair(int id)
         {
             Repair repair = _repairRepository.GetRepair(id);
@@ -339,9 +381,12 @@ namespace CarServices.Controllers
             return RedirectToAction("ListRepairAssignedToMechanic", "Mechanic");
         }
 
-        public IActionResult DeletePartFromRepair(int partId, int repairId)
+        public IActionResult DeletePartFromRepair(int usedPartId, int repairId, int partId, int quantity)
         {
-            _usedPartsRepository.Delete(partId);
+            Parts part = _partsRepository.GetParts(partId);
+            part.Quantity += quantity;
+            _partsRepository.Update(part);
+            _usedPartsRepository.Delete(usedPartId);
 
             return RedirectToAction("AddPartToRepair", "Mechanic", new { id = repairId });
         }
@@ -358,7 +403,7 @@ namespace CarServices.Controllers
         [HttpPost]
         public IActionResult AddVINToRepair(AddVINToRepairViewModel model)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 Repair repair = _repairRepository.GetRepair(model.RepairId);
                 Car car = _carRepository.GetCar(repair.CarId);

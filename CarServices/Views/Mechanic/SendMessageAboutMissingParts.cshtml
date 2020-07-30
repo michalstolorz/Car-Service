@@ -1,0 +1,27 @@
+﻿@model MechanicsMessages
+@{
+    ViewData["Title"] = "SendMessageAboutMissingParts";
+}
+
+<h1>SendMessageAboutMissingParts</h1>
+
+<form asp-action="SendMessageAboutMissingParts" method="post" class="mt-3">
+    <div asp-validation-summary="All" class="text-danger">
+    </div>
+    <div class="form-group row">
+        <label asp-for="Message" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Message" class="form-control" placeholder="Message">
+            <span asp-validation-for="Message" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary" style="width:auto">
+                Send Message
+            </button>
+            <a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ListRepairAssignedToMechanic">Back</a>
+        </div>
+    </div>
+
+</form>

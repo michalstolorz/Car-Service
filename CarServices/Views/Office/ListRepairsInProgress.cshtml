@@ -44,6 +44,29 @@
                     <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="CustomerCarRepair" asp-route-id="@mr.Id">Client</a></td>
                 </tr>
             }
+            else if (mr.StatusId == 12)
+            {
+                <tr style="background-color: deepskyblue;">
+                    <th scope="row">@mr.Id</th>
+                    <td>@mr.Car.CarModel.CarBrand.Name @mr.Car.CarModel.Name</td>
+                    <td>@mr.Car.VIN</td>
+                    <td>@mr.Car.ProductionYear</td>
+                    <td>@mr.RepairStatus.Name</td>
+                    <td>
+                        @foreach (var mu in Model.UsedRepairTypes)
+                        {
+                            if (mr.Id == mu.RepairId)
+                            {
+                                @mu.RepairType.Name
+                                <p></p>
+                            }
+                        }
+                    </td>
+                    <td>@mr.Employees.Name @mr.Employees.Surname</td>
+                    <td>@mr.Car.Customer.Name @mr.Car.Customer.Surname</td>
+                    <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="CustomerCarRepair" asp-route-id="@mr.Id">Client</a></td>
+                </tr>
+            }
             else
             {
                 <tr>

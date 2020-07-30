@@ -14,5 +14,6 @@ namespace CarServices.ViewModels
         [Required]
         [Display(Name = "Repair Type")]
         public int ChoosenRepairTypeId { get; set; }
+        public List<UsedRepairType> UsedRepairTypeList { get; set; }
     }
 }

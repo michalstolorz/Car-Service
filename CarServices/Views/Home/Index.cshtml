@@ -12,7 +12,7 @@
 
 @if (signInManager.IsSignedIn(User) && User.IsInRole("OfficeWorker"))
 {
-    <body onpageshow="return confirm('Missing parts from warehouse: @Model[0] \nRepairs to client decision: @Model[1]')">
+    <body onpageshow="return confirm('Missing parts from warehouse: @Model[0] \nRepairs to client decision: @Model[1] \nCar waiting for pickup: @Model[2]')">
 
     </body>
 }

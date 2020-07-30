@@ -15,6 +15,7 @@ namespace CarServices.Models
         public string UserId { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
+        public bool IsHired { get; set; }
     }
 
     public class ApplicationUser : IdentityUser

@@ -34,6 +34,7 @@ namespace CarServices.Controllers
         private readonly IRepairTypeRepository _repairTypeRepository;
         private readonly IRepairStatusRepository _repairStatusRepository;
         private readonly IRepairRepository _repairRepository;
+        private readonly IMechanicsMessagesRepository _mechanicsMessagesRepository;
         private readonly IPartsRepository _partsRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderDetailsRepository _orderDetailsRepository;
@@ -43,9 +44,10 @@ namespace CarServices.Controllers
         public OfficeController(ICustomerRepository customerRepository, ICarRepository carRepository,
             ICarBrandRepository carBrandRepository, ICarModelRepository carModelRepository, ILocalDataRepository localDataRepository,
             IEmployeesRepository employeesRepository, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager,
-            IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IHttpContextAccessor httpContextAccessor,
-            IPartsRepository partsRepository, IOrderRepository orderRepository, IOrderDetailsRepository orderDetailsRepository,
-            IUsedPartsRepository usedPartsRepository, IUsedRepairTypeRepository usedRepairTypeRepository, IRepairStatusRepository repairStatusRepository)
+            IRepairTypeRepository repairTypeRepository, IRepairRepository repairRepository, IMechanicsMessagesRepository mechanicsMessagesRepository, 
+            IHttpContextAccessor httpContextAccessor, IPartsRepository partsRepository, IOrderRepository orderRepository, 
+            IOrderDetailsRepository orderDetailsRepository, IUsedPartsRepository usedPartsRepository, IUsedRepairTypeRepository usedRepairTypeRepository, 
+            IRepairStatusRepository repairStatusRepository)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -59,6 +61,7 @@ namespace CarServices.Controllers
             _repairTypeRepository = repairTypeRepository;
             _repairStatusRepository = repairStatusRepository;
             _repairRepository = repairRepository;
+            _mechanicsMessagesRepository = mechanicsMessagesRepository;
             _partsRepository = partsRepository;
             _orderRepository = orderRepository;
             _orderDetailsRepository = orderDetailsRepository;
@@ -86,6 +89,7 @@ namespace CarServices.Controllers
                 Customer customer = _customerRepository.GetCustomer(l.CustomerId);
                 l.Customer = customer;
             }
+
             return View(listCars);
         }
 
@@ -130,6 +134,7 @@ namespace CarServices.Controllers
                 UsedParts = listUsedParts,
                 UsedRepairTypes = listUsedRepairTypes
             };
+
             return View(model);
         }
 
@@ -176,6 +181,7 @@ namespace CarServices.Controllers
                 Repairs = listRepairs,
                 UsedRepairTypes = listUsedRepairTypes
             };
+
             return View(model);
         }
 
@@ -204,6 +210,7 @@ namespace CarServices.Controllers
                 UsedRepairTypes = listUsedRepairTypes,
                 RepairId = Id
             };
+
             return View(customerCarRepairViewModel);
         }
 
@@ -214,6 +221,7 @@ namespace CarServices.Controllers
             repair.StatusId = repairInProgressStatusId;
             repair.Description += "Customer agree for additional repairs. ";
             _repairRepository.Update(repair);
+
             return RedirectToAction("ListRepairsInProgress", "Office");
         }
 
@@ -246,13 +254,14 @@ namespace CarServices.Controllers
             customerCarRepairViewModel.Repair = repairForModel;
             customerCarRepairViewModel.Customer = customer;
             customerCarRepairViewModel.UsedRepairTypes = listUsedRepairTypes;
+
             return View("CustomerCarRepair", customerCarRepairViewModel);
         }
 
         [HttpGet]
         public async Task<IActionResult> ListEmployees()
         {
-            IEnumerable<Employees> listEmployees = _employeesRepository.GetAllEmployees().ToList();
+            IEnumerable<Employees> listEmployees = _employeesRepository.GetAllEmployees().Where(e => e.IsHired == true).ToList();
             List<ListEmployeesViewModel> model = new List<ListEmployeesViewModel>();
             foreach (var e in listEmployees)
             {
@@ -267,6 +276,7 @@ namespace CarServices.Controllers
                 listEmployeesViewModel.Rolename = roles.FirstOrDefault();
                 model.Add(listEmployeesViewModel);
             }
+
             return View(model);
         }
 
@@ -283,10 +293,32 @@ namespace CarServices.Controllers
             {
                 customer.Discount = 0;
                 _customerRepository.Add(customer);
+
                 return RedirectToAction("index", "home");
             }
 
             return View(customer);
+        }
+
+        [HttpGet]
+        public IActionResult UpdateCustomer(int id)
+        {
+            Customer model = _customerRepository.GetCustomer(id);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateCustomer(Customer model)
+        {
+            if(ModelState.IsValid)
+            {
+                _customerRepository.Update(model);
+
+                return RedirectToAction("ListCustomers", "office");
+            }
+
+            return View(model);
         }
 
         [HttpGet]
@@ -380,8 +412,10 @@ namespace CarServices.Controllers
                     CustomerId = model.ChoosenModelId
                 };
                 _carRepository.Update(car);
+
                 return RedirectToAction("listcars", "office");
             }
+
             return View(model);
         }
 
@@ -413,6 +447,7 @@ namespace CarServices.Controllers
                 c.CarModel.CarBrand = carBrand;
                 model.CarList.Add(new SelectListItem { Text = c.CarModel.CarBrand.Name.ToString() + " " + c.CarModel.Name.ToString() + " " + c.ProductionYear.ToString() + " " + c.VIN.ToString(), Value = c.Id.ToString() });
             }
+
             return View(model);
         }
 
@@ -441,6 +476,7 @@ namespace CarServices.Controllers
                         _usedRepairTypeRepository.Add(usedRepairType);
                     }
                 }
+
                 return RedirectToAction("index", "home");
             }
             model.CarList = new List<SelectListItem>();
@@ -453,6 +489,7 @@ namespace CarServices.Controllers
                 c.CarModel.CarBrand = carBrand;
                 model.CarList.Add(new SelectListItem { Text = c.CarModel.CarBrand.Name.ToString() + " " + c.CarModel.Name.ToString() + " " + c.ProductionYear.ToString() + " " + c.VIN.ToString(), Value = c.Id.ToString() });
             }
+
             return View(model);
         }
 
@@ -464,7 +501,6 @@ namespace CarServices.Controllers
             model.CustomersList = new List<SelectListItem>();
             foreach (var c in customerList)
                 model.CustomersList.Add(new SelectListItem { Text = c.Name + " " + c.Surname, Value = c.Id.ToString() });
-
 
             return View(model);
         }
@@ -479,6 +515,7 @@ namespace CarServices.Controllers
                     Customer customer = _customerRepository.GetCustomer(model.Id);
                     customer.Discount = model.Discount;
                     _customerRepository.Update(customer);
+
                     return RedirectToAction("listcustomers", "office", _customerRepository.GetAllCustomer().ToList());
                 }
                 ModelState.AddModelError(string.Empty, "Wrong value of discount. It sholud be between 0 and 100");
@@ -499,6 +536,7 @@ namespace CarServices.Controllers
                 AllPartsList = _partsRepository.GetAllParts().ToList(),
                 PartsToOrderList = _localDataRepository.GetOrderDetails()
             };
+
             return View(model);
         }
 
@@ -524,6 +562,7 @@ namespace CarServices.Controllers
                 _orderDetailsRepository.Add(o);
             }
             _localDataRepository.ClearOrderDetails();
+
             return RedirectToAction("index", "home");
         }
 
@@ -539,6 +578,7 @@ namespace CarServices.Controllers
                     if (o.PartId == createOrderViewModel.ChoosenPartId)
                     {
                         o.Quantity += createOrderViewModel.AddedQuantity;
+
                         return RedirectToAction("createorder", "office");
                     }
                 }
@@ -549,10 +589,12 @@ namespace CarServices.Controllers
                     Quantity = createOrderViewModel.AddedQuantity
                 };
                 _localDataRepository.AddOrderDetail(orderDetail);
+
                 return RedirectToAction("createorder", "office");
             }
             createOrderViewModel.AllPartsList = _partsRepository.GetAllParts().ToList();
             createOrderViewModel.PartsToOrderList = _localDataRepository.GetOrderDetails();
+
             return View("CreateOrder", createOrderViewModel);
         }
 
@@ -561,6 +603,7 @@ namespace CarServices.Controllers
         public IActionResult RemovePartFromOrder(int i)
         {
             _localDataRepository.DeleteOrderDetail(i);
+
             return RedirectToAction("createorder", "office");
         }
 
@@ -570,6 +613,7 @@ namespace CarServices.Controllers
             List<RepairType> listRepairTypes = _repairTypeRepository.GetAllRepairType().ToList();
             AddRepairTypeViewModel model = new AddRepairTypeViewModel()
             { RepairTypes = listRepairTypes };
+
             return View(model);
         }
 
@@ -593,11 +637,30 @@ namespace CarServices.Controllers
             return View(model);
         }
 
-        public IActionResult DeleteRepairType(int id)
+        [HttpGet]
+        public IActionResult UpdateRepairType(int id)
         {
-            _repairTypeRepository.Delete(id);
+            RepairType model = _repairTypeRepository.GetRepairType(id);
 
-            return RedirectToAction("AddRepairType", "office");
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateRepairType(RepairType model)
+        {
+            if(ModelState.IsValid)
+            {
+                List<RepairType> RepairTypes = _repairTypeRepository.GetAllRepairType().Where(r => r.Name == model.Name).ToList();
+                if (RepairTypes.Count == 0)
+                {
+                    _repairTypeRepository.Update(model);
+
+                    return RedirectToAction("AddRepairType", "office");
+                }
+                ModelState.AddModelError(string.Empty, "Repair type already exist");
+            }
+
+            return View(model);
         }
 
         [HttpGet]
@@ -606,6 +669,7 @@ namespace CarServices.Controllers
             List<CarBrand> listCarBrands = _carBrandRepository.GetAllCarBrand().ToList();
             AddCarBrandViewModel model = new AddCarBrandViewModel()
             { CarBrands = listCarBrands };
+
             return View(model);
         }
 
@@ -621,6 +685,7 @@ namespace CarServices.Controllers
             }
             List<CarBrand> listCarBrands = _carBrandRepository.GetAllCarBrand().ToList();
             model.CarBrands = listCarBrands;
+
             return View(model);
         }
 
@@ -633,6 +698,7 @@ namespace CarServices.Controllers
                 CarModels = listCarModels,
                 CarBrandId = Id
             };
+
             return View(model);
         }
 
@@ -651,6 +717,20 @@ namespace CarServices.Controllers
             }
             List<CarModel> listCarModels = _carModelRepository.GetAllCarModel().Where(c => c.BrandId == model.CarBrandId).ToList();
             model.CarModels = listCarModels;
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ListMechanicsMessages()
+        {
+            List<MechanicsMessages> model = _mechanicsMessagesRepository.GetAllMechanicsMessages().OrderByDescending(m => m.MessageDateTime).ToList();
+            foreach(var m in model)
+            {
+                Employees employee = _employeesRepository.GetEmployees(m.EmployeeId);
+                m.Employee = employee;
+            }
+
             return View(model);
         }
     }

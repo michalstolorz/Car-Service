@@ -27,7 +27,7 @@
                                 <th scope="row">@m.Id</th>
                                 <td scope="row">@m.Part.Name</td>
                                 <td scope="row">@m.Quantity</td>
-                                <td><a class="btn btn-danger" role="button" asp-controller="Mechanic" asp-action="DeletePartFromRepair" asp-route-partId="@m.Id" asp-route-repairId="@Model.RepairId">Delete</a></td>
+                                <td><a class="btn btn-danger" role="button" asp-controller="Mechanic" asp-action="DeletePartFromRepair" asp-route-usedPartId="@m.Id" asp-route-repairId="@Model.RepairId" asp-route-partId="@m.PartId" asp-route-quantity="@m.Quantity">Delete</a></td>
                             </tr>
                         }
                     }
@@ -57,6 +57,7 @@
                 Add Part
             </button>
             <a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="ListRepairAssignedToMechanic">Back</a>
+            <a class="btn btn-primary" role="button" asp-controller="Mechanic" asp-action="SendMessageAboutMissingParts">Send Message About Missing Parts</a>
         </div>
     </div>
 

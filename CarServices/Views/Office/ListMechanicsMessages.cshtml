@@ -1,0 +1,28 @@
+﻿@model List<MechanicsMessages>
+@{
+    ViewData["Title"] = "ListMechanicsMessages";
+}
+
+<h1>ListMechanicsMessages</h1>
+
+<table class="table" style="margin-top: 20px">
+    <thead>
+        <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Employee</th>
+            <th scope="col">Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var m in Model)
+            {
+                <tr>
+                    <td>@m.MessageDateTime</td>
+                    <td>@m.Employee.Name @m.Employee.Surname</td>
+                    <td>@m.Message</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

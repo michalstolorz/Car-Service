@@ -30,6 +30,7 @@
         <tr>
             <th scope="col">Id</th>
             <th scope="col">Repair Type</th>
+            <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
@@ -38,7 +39,7 @@
             <tr>
                 <th scope="row">@cb.Id</th>
                 <td>@cb.Name</td>
-                @*<td><a class="btn btn-danger" role="button" asp-controller="Office" asp-action="DeleteRepairType" asp-route-id="@cb.Id">Delete</a></td>*@
+                <td><a class="btn btn-primary" role="button" asp-controller="Office" asp-action="UpdateRepairType" asp-route-id="@cb.Id">Edit</a></td>
             </tr>
         }
     </tbody>

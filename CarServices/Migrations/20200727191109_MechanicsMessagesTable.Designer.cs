@@ -4,14 +4,16 @@ using CarServices.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CarServices.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200727191109_MechanicsMessagesTable")]
+    partial class MechanicsMessagesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,15 +171,12 @@ namespace CarServices.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Message")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("MessageDateTime")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
 
                     b.ToTable("MechanicsMessages");
                 });
@@ -608,15 +607,6 @@ namespace CarServices.Migrations
                     b.HasOne("CarServices.Models.ApplicationUser", "ApplicationUser")
                         .WithOne("Employees")
                         .HasForeignKey("CarServices.Models.Employees", "UserId");
-                });
-
-            modelBuilder.Entity("CarServices.Models.MechanicsMessages", b =>
-                {
-                    b.HasOne("CarServices.Models.Employees", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CarServices.Models.Order", b =>

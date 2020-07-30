@@ -98,6 +98,38 @@ namespace CarServices.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ListEmployeesHired()
+        {
+            IEnumerable<Employees> listEmployees = _employeesRepository.GetAllEmployees().Where(e => e.IsHired == true).ToList();
+            List<ListEmployeesViewModel> model = new List<ListEmployeesViewModel>();
+            foreach (var e in listEmployees)
+            {
+                ListEmployeesViewModel listEmployeesViewModel = new ListEmployeesViewModel
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Surname = e.Surname
+                };
+                var user = await _userManager.FindByIdAsync(e.UserId);
+                var roles = await _userManager.GetRolesAsync(user);
+                listEmployeesViewModel.Rolename = roles.FirstOrDefault();
+                model.Add(listEmployeesViewModel);
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult FireEmployee(int id)
+        {
+            Employees employee = _employeesRepository.GetEmployees(id);
+            employee.IsHired = false;
+            _employeesRepository.Update(employee);
+
+            return RedirectToAction("ListEmployees", "boss");
+        }
+
         public IActionResult CreateInvoicePDF(int Id)
         {
             //Create PDF with PDF/A-3b conformance.
@@ -279,7 +311,7 @@ namespace CarServices.Controllers
                 "02-20 Warsaw\n" +
                 "NIP: 8127749027";
             layoutResult = textElement.Draw(page, new PointF(margin, layoutResult.Bounds.Bottom + lineSpace));
-            textElement.Text = "Any Questions? support@adventure-works.com";
+            textElement.Text = "Any Questions? adampaluch@car-service.com";
             layoutResult = textElement.Draw(page, new PointF(margin, layoutResult.Bounds.Bottom + lineSpace));
 
             FileStream fileStream = new FileStream("Invoice" + repair.Id + ".pdf", FileMode.CreateNew, FileAccess.ReadWrite);
@@ -294,16 +326,12 @@ namespace CarServices.Controllers
             return RedirectToAction("index", "home");
         }
 
-
-
         [HttpGet]
         public IActionResult CreateReport()
         {
             CreateReportViewModel model = new CreateReportViewModel();
             return View(model);
         }
-
-
 
         [HttpPost]
         public IActionResult CreateReport(CreateReportViewModel model)
@@ -348,8 +376,10 @@ namespace CarServices.Controllers
                             model.RepairList.Add(repairEntity);
                         }
                 }
+
                 return View(model);
             }
+
             return View(model);
         }
 
