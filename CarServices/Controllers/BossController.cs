@@ -120,14 +120,14 @@ namespace CarServices.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        //[HttpPost]
         public IActionResult FireEmployee(int id)
         {
             Employees employee = _employeesRepository.GetEmployees(id);
             employee.IsHired = false;
             _employeesRepository.Update(employee);
 
-            return RedirectToAction("ListEmployees", "boss");
+            return RedirectToAction("index", "home");
         }
 
         public IActionResult CreateInvoicePDF(int Id)

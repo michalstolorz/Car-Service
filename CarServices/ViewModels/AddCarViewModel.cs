@@ -11,7 +11,7 @@ namespace CarServices.ViewModels
     public class AddCarViewModel
     {
         public int Id { get; set; }
-        [Required]
+        //[Required]
         [StringLength(maximumLength:17,MinimumLength = 17, ErrorMessage = "Wrong VIN number")]
         [RegularExpression(@"^[^IOQioq]+$", ErrorMessage = "Wrong VIN number")]
         public string VIN { get; set; }

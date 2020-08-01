@@ -10,7 +10,7 @@ namespace CarServices.Models
     public class Car
     {
         public int Id { get; set; }
-        [Required]
+        //[Required]
         public string VIN { get; set; }
         [Required]
         public int ProductionYear { get; set; }
